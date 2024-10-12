@@ -4,9 +4,28 @@ import {
     SpruceSchemas,
 } from '@sprucelabs/spruce-test-fixtures'
 import { generateId } from '@sprucelabs/test-utils'
-import { Family } from '../../eightbitstories.types'
+import { Family, ListFamilyMember } from '../../eightbitstories.types'
 
 export default class EventFaker {
+    public async fakeListFamilyMembers(cb?: () => void | ListFamilyMember[]) {
+        await eventFaker.on(
+            'eightbitstories.list-family-members::v2024_09_19',
+            () => {
+                return {
+                    familyMembers: cb?.() ?? [],
+                }
+            }
+        )
+    }
+
+    public generateListFamilyMemberValues(): ListFamilyMember {
+        return {
+            id: generateId(),
+            name: generateId(),
+            bio: generateId(),
+        }
+    }
+
     public async fakeGetFamily(cb?: () => void | Family) {
         await eventFaker.on('eightbitstories.get-family::v2024_09_19', () => {
             return {

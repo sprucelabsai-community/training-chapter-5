@@ -6,13 +6,16 @@ import {
     SkillViewControllerLoadOptions,
     Router,
     ListViewController,
+    ListRow,
 } from '@sprucelabs/heartwood-view-controllers'
 
 export default class MembersSkillViewController extends AbstractSkillViewController {
     public static id = 'members'
+
     protected cardVc: CardViewController
+    protected listVc: ListViewController
+
     private router?: Router
-    private listVc: ListViewController
 
     public constructor(options: ViewControllerOptions) {
         super(options)
@@ -51,7 +54,22 @@ export default class MembersSkillViewController extends AbstractSkillViewControl
     }
 
     private ListVc(): ListViewController {
-        return this.Controller('list', {})
+        return this.Controller('list', {
+            rows: [],
+        })
+    }
+
+    private renderNoResultsRow(): ListRow {
+        return {
+            id: 'no-results',
+            cells: [
+                {
+                    text: {
+                        content: `You have not created any family members! Do that now! 👇`,
+                    },
+                },
+            ],
+        }
     }
 
     private async handleClickDone() {
@@ -61,6 +79,20 @@ export default class MembersSkillViewController extends AbstractSkillViewControl
     public async load(options: SkillViewControllerLoadOptions) {
         const { router } = options
         this.router = router
+
+        const client = await this.connectToApi()
+        const [{ familyMembers }] = await client.emitAndFlattenResponses(
+            'eightbitstories.list-family-members::v2024_09_19'
+        )
+
+        if (familyMembers.length === 0) {
+            this.listVc.addRow(this.renderNoResultsRow())
+            return
+        }
+
+        for (const member of familyMembers) {
+            this.listVc.addRow({ id: member.id, cells: [] })
+        }
     }
 
     public render(): SkillView {

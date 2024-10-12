@@ -2,7 +2,7 @@ import { buildPermissionContract } from '@sprucelabs/mercury-types'
 
 const eightbitstoriesPermissions = buildPermissionContract({
     id: 'eightbitstories',
-    name: 'Eightbitstories',
+    name: '8-bit Stories',
     description: '',
     requireAllPermissions: false,
     permissions: [
