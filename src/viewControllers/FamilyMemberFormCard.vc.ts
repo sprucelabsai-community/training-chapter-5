@@ -50,6 +50,7 @@ export default class FamilyMemberFormCardViewController extends AbstractViewCont
             buildForm({
                 schema: familyMemberSchema,
                 onCancel: this.handleCancel.bind(this),
+                onChange: this.handleChangeForm.bind(this),
                 sections: [
                     {
                         fields: ['name', { name: 'bio', renderAs: 'textarea' }],
@@ -57,6 +58,11 @@ export default class FamilyMemberFormCardViewController extends AbstractViewCont
                 ],
             })
         )
+    }
+
+    private async handleChangeForm() {
+        const name = this.formVc.getValue('name')
+        this.cardVc.setHeaderTitle(`Add ${name || 'Family Member'}!`)
     }
 
     private async handleCancel() {
