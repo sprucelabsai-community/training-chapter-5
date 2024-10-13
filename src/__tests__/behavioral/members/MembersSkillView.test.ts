@@ -1,11 +1,13 @@
 import {
+    activeRecordCardAssert,
     buttonAssert,
     interactor,
     listAssert,
+    MockActiveRecordCard,
     vcAssert,
 } from '@sprucelabs/heartwood-view-controllers'
 import { fake } from '@sprucelabs/spruce-test-fixtures'
-import { assert, test } from '@sprucelabs/test-utils'
+import { test } from '@sprucelabs/test-utils'
 import { ListFamilyMember } from '../../../eightbitstories.types'
 import MembersSkillViewController from '../../../members/Members.svc'
 import AbstractEightBitTest from '../../support/AbstractEightBitTest'
@@ -24,6 +26,7 @@ export default class MembersSkillViewTest extends AbstractEightBitTest {
             () => this.fakedFamilyMembers
         )
 
+        this.views.setController('active-record-card', MockActiveRecordCard)
         this.views.setController('eightbitstories.members', SpyMembersSkillView)
         this.vc = this.views.Controller(
             'eightbitstories.members',
@@ -38,12 +41,12 @@ export default class MembersSkillViewTest extends AbstractEightBitTest {
 
     @test()
     protected static cardRendersExpectedButtons() {
-        buttonAssert.cardRendersButtons(this.cardVc, ['done', 'add'])
+        buttonAssert.cardRendersButtons(this.activeCardVc, ['done', 'add'])
     }
 
     @test()
     protected static rendersMembersList() {
-        listAssert.cardRendersList(this.cardVc)
+        listAssert.cardRendersList(this.activeCardVc)
     }
 
     @test()
@@ -51,28 +54,12 @@ export default class MembersSkillViewTest extends AbstractEightBitTest {
         await this.load()
 
         await vcAssert.assertActionRedirects({
-            action: () => interactor.clickButton(this.cardVc, 'done'),
+            action: () => interactor.clickButton(this.activeCardVc, 'done'),
             router: this.views.getRouter(),
             destination: {
                 id: 'eightbitstories.root',
             },
         })
-    }
-
-    @test()
-    protected static async emitsListFamilyMembersOnLoad() {
-        let wasHit = false
-
-        await this.eventFaker.fakeListFamilyMembers(() => {
-            wasHit = true
-        })
-
-        await this.load()
-
-        assert.isTrue(
-            wasHit,
-            `You did not emit the list family members event on load`
-        )
     }
 
     @test()
@@ -104,6 +91,11 @@ export default class MembersSkillViewTest extends AbstractEightBitTest {
         this.assertListRendersRow(this.fakedFamilyMembers[1].id)
     }
 
+    @test()
+    protected static async cardRendersAsActiveRecordCard() {
+        activeRecordCardAssert.rendersAsActiveRecordCard(this.activeCardVc)
+    }
+
     private static seedFamilyMember() {
         const familyMember = this.eventFaker.generateListFamilyMemberValues()
         this.fakedFamilyMembers.push(familyMember)
@@ -111,31 +103,24 @@ export default class MembersSkillViewTest extends AbstractEightBitTest {
     }
 
     private static assertListRendersRow(id: string) {
-        listAssert.listRendersRow(this.listVc, id)
+        this.activeCardVc.assertRendersRow(id)
     }
 
     private static assertDoesNotRenderNoResultsRow() {
-        listAssert.listDoesNotRenderRow(this.listVc, 'no-results')
-    }
-
-    private static get listVc() {
-        return this.vc.getListVc()
+        this.activeCardVc.assertDoesNotRenderRow('no-results')
     }
 
     private static async load() {
         await this.views.load(this.vc)
     }
 
-    private static get cardVc() {
-        return this.vc.getCardVc()
+    private static get activeCardVc() {
+        return this.vc.getActiveCardVc()
     }
 }
 
 class SpyMembersSkillView extends MembersSkillViewController {
-    public getListVc() {
-        return this.listVc
-    }
-    public getCardVc() {
-        return this.cardVc
+    public getActiveCardVc() {
+        return this.activeCardVc as MockActiveRecordCard
     }
 }

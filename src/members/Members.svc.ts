@@ -2,74 +2,70 @@ import {
     AbstractSkillViewController,
     ViewControllerOptions,
     SkillView,
-    CardViewController,
     SkillViewControllerLoadOptions,
     Router,
-    ListViewController,
-    ListRow,
+    buildActiveRecordCard,
+    ActiveRecordCardViewController,
 } from '@sprucelabs/heartwood-view-controllers'
 
 export default class MembersSkillViewController extends AbstractSkillViewController {
     public static id = 'members'
 
-    protected cardVc: CardViewController
-    protected listVc: ListViewController
-
     private router?: Router
+    protected activeCardVc: ActiveRecordCardViewController
 
     public constructor(options: ViewControllerOptions) {
         super(options)
-
-        this.listVc = this.ListVc()
-        this.cardVc = this.CardVc()
+        this.activeCardVc = this.ActiveRecordCard()
     }
 
-    private CardVc(): CardViewController {
-        return this.Controller('card', {
-            header: {
-                title: 'Family Members',
-            },
-            body: {
-                sections: [
-                    {
-                        list: this.listVc.render(),
-                    },
-                ],
-            },
-            footer: {
-                buttons: [
-                    {
-                        id: 'add',
-                        label: 'Add Family Member',
-                    },
-                    {
-                        id: 'done',
-                        label: 'Done',
-                        type: 'primary',
-                        onClick: this.handleClickDone.bind(this),
-                    },
-                ],
-            },
-        })
-    }
-
-    private ListVc(): ListViewController {
-        return this.Controller('list', {
-            rows: [],
-        })
-    }
-
-    private renderNoResultsRow(): ListRow {
-        return {
-            id: 'no-results',
-            cells: [
-                {
-                    text: {
-                        content: `You have not created any family members! Do that now! 👇`,
-                    },
+    private ActiveRecordCard(): ActiveRecordCardViewController {
+        return this.Controller(
+            'active-record-card',
+            buildActiveRecordCard({
+                eventName: 'eightbitstories.list-family-members::v2024_09_19',
+                responseKey: 'familyMembers',
+                header: {
+                    title: 'Family Members',
                 },
-            ],
-        }
+                rowTransformer: (familyMember) => ({
+                    id: familyMember.id,
+                    cells: [
+                        {
+                            text: {
+                                content: familyMember.name,
+                            },
+                            subText: {
+                                content: familyMember.bio,
+                            },
+                        },
+                    ],
+                }),
+                noResultsRow: {
+                    cells: [
+                        {
+                            text: {
+                                content: `You have not created any family members! Do that now! 👇`,
+                            },
+                        },
+                    ],
+                },
+                footer: {
+                    buttons: [
+                        {
+                            id: 'add',
+                            label: 'Add Family Member',
+                        },
+                        {
+                            id: 'done',
+                            label: 'Done',
+                            type: 'primary',
+                            onClick: this.handleClickDone.bind(this),
+                        },
+                    ],
+                },
+            })
+        )
     }
 
     private async handleClickDone() {
@@ -80,26 +76,14 @@ export default class MembersSkillViewController extends AbstractSkillViewControl
         const { router } = options
         this.router = router
 
-        const client = await this.connectToApi()
-        const [{ familyMembers }] = await client.emitAndFlattenResponses(
-            'eightbitstories.list-family-members::v2024_09_19'
-        )
-
-        if (familyMembers.length === 0) {
-            this.listVc.addRow(this.renderNoResultsRow())
-            return
-        }
-
-        for (const member of familyMembers) {
-            this.listVc.addRow({ id: member.id, cells: [] })
-        }
+        await this.activeCardVc.load()
     }
 
     public render(): SkillView {
         return {
             layouts: [
                 {
-                    cards: [this.cardVc.render()],
+                    cards: [this.activeCardVc.render()],
                 },
             ],
         }
