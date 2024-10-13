@@ -27,6 +27,7 @@ export default class MembersSkillViewController extends AbstractSkillViewControl
                 responseKey: 'familyMembers',
                 header: {
                     title: 'Family Members',
+                    image: 'https://s3.amazonaws.com/storybook.sprucelabs.ai/members.jpg',
                 },
                 rowTransformer: (familyMember) => ({
                     id: familyMember.id,
@@ -42,6 +43,7 @@ export default class MembersSkillViewController extends AbstractSkillViewControl
                     ],
                 }),
                 noResultsRow: {
+                    height: 'content',
                     cells: [
                         {
                             text: {

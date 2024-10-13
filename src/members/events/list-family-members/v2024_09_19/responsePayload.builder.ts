@@ -1,5 +1,5 @@
 import { buildSchema, dropPrivateFields } from '@sprucelabs/schema'
-import familyMemberBuilder from '../../../schemas/v2024_09_19/familyMember.builder'
+import familyMemberBuilder from '../../../../schemas/v2024_09_19/familyMember.builder'
 
 const listFamilyMembersResponsePayloadBuilder = buildSchema({
     id: 'listFamilyMembersResponsePayload',
