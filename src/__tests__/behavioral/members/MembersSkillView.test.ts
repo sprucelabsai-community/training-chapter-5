@@ -7,11 +7,12 @@ import {
     vcAssert,
 } from '@sprucelabs/heartwood-view-controllers'
 import { fake } from '@sprucelabs/spruce-test-fixtures'
-import { test } from '@sprucelabs/test-utils'
+import { assert, test } from '@sprucelabs/test-utils'
 import { ListFamilyMember } from '../../../eightbitstories.types'
 import MembersSkillViewController from '../../../members/Members.svc'
 import FamilyMemberFormCardViewController from '../../../viewControllers/FamilyMemberFormCard.vc'
 import AbstractEightBitTest from '../../support/AbstractEightBitTest'
+import SpyFamilyMemberFormCard from './SpyFamilyMemberFormCard'
 
 @fake.login()
 export default class MembersSkillViewTest extends AbstractEightBitTest {
@@ -27,6 +28,10 @@ export default class MembersSkillViewTest extends AbstractEightBitTest {
             () => this.fakedFamilyMembers
         )
 
+        this.views.setController(
+            'eightbitstories.family-member-form-card',
+            SpyFamilyMemberFormCard
+        )
         this.views.setController('active-record-card', MockActiveRecordCard)
         this.views.setController('eightbitstories.members', SpyMembersSkillView)
         this.vc = this.views.Controller(
@@ -99,14 +104,35 @@ export default class MembersSkillViewTest extends AbstractEightBitTest {
 
     @test()
     protected static async rendersDialogWhenClickingAdd() {
+        await this.clickAddAndAssertDialog()
+    }
+
+    @test()
+    protected static async cancellingFormInFamilyMemberFormCardHidesDialog() {
+        const { dialogVc, familyMemberFormCardVc } =
+            await this.clickAddAndAssertDialog()
+
+        await interactor.cancelForm(familyMemberFormCardVc.getFormVc())
+        assert.isFalse(
+            dialogVc.getIsVisible(),
+            'Cancelling the form did not hide the dialog'
+        )
+    }
+
+    private static async clickAddAndAssertDialog() {
         const dialogVc = await vcAssert.assertRendersDialog(this.vc, () =>
             interactor.clickButton(this.activeCardVc, 'add')
         )
 
-        vcAssert.assertRendersAsInstanceOf(
+        const familyMemberFormCardVc = vcAssert.assertRendersAsInstanceOf(
             dialogVc,
             FamilyMemberFormCardViewController
-        )
+        ) as SpyFamilyMemberFormCard
+
+        return {
+            dialogVc,
+            familyMemberFormCardVc,
+        }
     }
 
     private static seedFamilyMember() {

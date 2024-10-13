@@ -11,13 +11,20 @@ import { FamilyMemberSchema } from '../eightbitstories.types'
 
 export default class FamilyMemberFormCardViewController extends AbstractViewController<Card> {
     public static id = 'family-member-form-card'
+
     private cardVc: CardViewController
 
     protected formVc: FormViewController<FamilyMemberSchema>
+    private onCancelHandler?: OnCancelHandler
 
-    public constructor(options: ViewControllerOptions) {
+    public constructor(
+        options: ViewControllerOptions & FamilyMemberFormCardOptions
+    ) {
         super(options)
 
+        const { onCancel } = options
+
+        this.onCancelHandler = onCancel
         this.formVc = this.FormVc()
         this.cardVc = this.CardVc()
     }
@@ -42,6 +49,7 @@ export default class FamilyMemberFormCardViewController extends AbstractViewCont
             'form',
             buildForm({
                 schema: familyMemberSchema,
+                onCancel: this.handleCancel.bind(this),
                 sections: [
                     {
                         fields: ['name', { name: 'bio', renderAs: 'textarea' }],
@@ -51,7 +59,17 @@ export default class FamilyMemberFormCardViewController extends AbstractViewCont
         )
     }
 
+    private async handleCancel() {
+        await this.onCancelHandler?.()
+    }
+
     public render() {
         return this.cardVc.render()
     }
+}
+
+type OnCancelHandler = () => void | Promise<void>
+
+interface FamilyMemberFormCardOptions {
+    onCancel?: OnCancelHandler
 }

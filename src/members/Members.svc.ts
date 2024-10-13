@@ -72,11 +72,13 @@ export default class MembersSkillViewController extends AbstractSkillViewControl
     }
 
     private async handleClickAddMember() {
-        const vc = this.Controller(
-            'eightbitstories.family-member-form-card',
-            {}
-        )
-        this.renderInDialog(vc.render())
+        const vc = this.Controller('eightbitstories.family-member-form-card', {
+            onCancel: async () => {
+                await dialogVc.hide()
+            },
+        })
+
+        const dialogVc = this.renderInDialog(vc.render())
     }
 
     private async handleClickDone() {

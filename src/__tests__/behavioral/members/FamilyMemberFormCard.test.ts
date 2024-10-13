@@ -1,8 +1,8 @@
 import { formAssert } from '@sprucelabs/heartwood-view-controllers'
 import { fake } from '@sprucelabs/spruce-test-fixtures'
 import { test, assert } from '@sprucelabs/test-utils'
-import FamilyMemberFormCardViewController from '../../../viewControllers/FamilyMemberFormCard.vc'
 import AbstractEightBitTest from '../../support/AbstractEightBitTest'
+import SpyFamilyMemberFormCard from './SpyFamilyMemberFormCard'
 
 @fake.login()
 export default class FamilyMemberFormCardTest extends AbstractEightBitTest {
@@ -36,13 +36,10 @@ export default class FamilyMemberFormCardTest extends AbstractEightBitTest {
         formAssert.formFieldRendersAs(this.formVc, 'bio', 'textarea')
     }
 
+    @test()
+    protected static async headerTitleUpdatesWhyTyping() {}
+
     private static get formVc() {
         return this.vc.getFormVc()
-    }
-}
-
-class SpyFamilyMemberFormCard extends FamilyMemberFormCardViewController {
-    public getFormVc() {
-        return this.formVc
     }
 }
