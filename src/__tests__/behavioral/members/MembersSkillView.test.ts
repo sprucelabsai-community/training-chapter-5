@@ -10,6 +10,7 @@ import { fake } from '@sprucelabs/spruce-test-fixtures'
 import { test } from '@sprucelabs/test-utils'
 import { ListFamilyMember } from '../../../eightbitstories.types'
 import MembersSkillViewController from '../../../members/Members.svc'
+import FamilyMemberFormCardViewController from '../../../viewControllers/FamilyMemberFormCard.vc'
 import AbstractEightBitTest from '../../support/AbstractEightBitTest'
 
 @fake.login()
@@ -94,6 +95,18 @@ export default class MembersSkillViewTest extends AbstractEightBitTest {
     @test()
     protected static async cardRendersAsActiveRecordCard() {
         activeRecordCardAssert.rendersAsActiveRecordCard(this.activeCardVc)
+    }
+
+    @test()
+    protected static async rendersDialogWhenClickingAdd() {
+        const dialogVc = await vcAssert.assertRendersDialog(this.vc, () =>
+            interactor.clickButton(this.activeCardVc, 'add')
+        )
+
+        vcAssert.assertRendersAsInstanceOf(
+            dialogVc,
+            FamilyMemberFormCardViewController
+        )
     }
 
     private static seedFamilyMember() {
