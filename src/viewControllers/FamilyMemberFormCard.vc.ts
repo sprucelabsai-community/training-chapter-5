@@ -6,8 +6,11 @@ import {
     buildForm,
     FormViewController,
 } from '@sprucelabs/heartwood-view-controllers'
-import familyMemberSchema from '#spruce/schemas/eightbitstories/v2024_09_19/familyMember.schema'
-import { FamilyMemberSchema } from '../eightbitstories.types'
+import publicFamilyMemberSchema from '#spruce/schemas/eightbitstories/v2024_09_19/publicFamilyMember.schema'
+import {
+    FamilyMemberSchema,
+    PublicFamilyMember,
+} from '../eightbitstories.types'
 
 export default class FamilyMemberFormCardViewController extends AbstractViewController<Card> {
     public static id = 'family-member-form-card'
@@ -16,15 +19,18 @@ export default class FamilyMemberFormCardViewController extends AbstractViewCont
 
     protected formVc: FormViewController<FamilyMemberSchema>
     private onCancelHandler?: OnCancelHandler
+    private onSubmitHandler?: OnSubmitHandler
 
     public constructor(
         options: ViewControllerOptions & FamilyMemberFormCardOptions
     ) {
         super(options)
 
-        const { onCancel } = options
+        const { onCancel, onSubmit } = options
 
         this.onCancelHandler = onCancel
+        this.onSubmitHandler = onSubmit
+
         this.formVc = this.FormVc()
         this.cardVc = this.CardVc()
     }
@@ -48,9 +54,10 @@ export default class FamilyMemberFormCardViewController extends AbstractViewCont
         return this.Controller(
             'form',
             buildForm({
-                schema: familyMemberSchema,
+                schema: publicFamilyMemberSchema,
                 onCancel: this.handleCancel.bind(this),
                 onChange: this.handleChangeForm.bind(this),
+                onSubmit: this.handleSubmit.bind(this),
                 sections: [
                     {
                         fields: ['name', { name: 'bio', renderAs: 'textarea' }],
@@ -58,6 +65,27 @@ export default class FamilyMemberFormCardViewController extends AbstractViewCont
                 ],
             })
         )
+    }
+
+    private async handleSubmit() {
+        try {
+            const values = this.formVc.getValues()
+            const client = await this.connectToApi()
+            await client.emitAndFlattenResponses(
+                'eightbitstories.create-family-member::v2024_09_19',
+                {
+                    payload: {
+                        familyMember: values as PublicFamilyMember,
+                    },
+                }
+            )
+            await this.onSubmitHandler?.()
+        } catch (err: any) {
+            this.log.error(`failed to create family member`, err)
+            await this.alert({
+                message: err.message ?? 'Adding your family member failed!',
+            })
+        }
     }
 
     private async handleChangeForm() {
@@ -75,7 +103,9 @@ export default class FamilyMemberFormCardViewController extends AbstractViewCont
 }
 
 type OnCancelHandler = () => void | Promise<void>
+type OnSubmitHandler = () => void | Promise<void>
 
 interface FamilyMemberFormCardOptions {
     onCancel?: OnCancelHandler
+    onSubmit?: OnSubmitHandler
 }

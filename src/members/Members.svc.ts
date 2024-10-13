@@ -76,6 +76,10 @@ export default class MembersSkillViewController extends AbstractSkillViewControl
             onCancel: async () => {
                 await dialogVc.hide()
             },
+            onSubmit: async () => {
+                await dialogVc.hide()
+                await this.activeCardVc.refresh()
+            },
         })
 
         const dialogVc = this.renderInDialog(vc.render())

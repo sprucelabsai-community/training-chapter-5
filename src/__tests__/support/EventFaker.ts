@@ -4,10 +4,24 @@ import {
     SpruceSchemas,
 } from '@sprucelabs/spruce-test-fixtures'
 import { generateId } from '@sprucelabs/test-utils'
-import { Family, ListFamilyMember } from '../../eightbitstories.types'
+import { Family, PublicFamilyMember } from '../../eightbitstories.types'
 
 export default class EventFaker {
-    public async fakeListFamilyMembers(cb?: () => void | ListFamilyMember[]) {
+    public async fakeCreateFamilyMember(
+        cb?: (targetAndPayload: CreateFamilyMemberTargetAndPayload) => void
+    ) {
+        await eventFaker.on(
+            'eightbitstories.create-family-member::v2024_09_19',
+            (targetAndPayload) => {
+                cb?.(targetAndPayload)
+                return {
+                    familyMember: this.generatePublicFamilyMemberValues(),
+                }
+            }
+        )
+    }
+
+    public async fakeListFamilyMembers(cb?: () => void | PublicFamilyMember[]) {
         await eventFaker.on(
             'eightbitstories.list-family-members::v2024_09_19',
             () => {
@@ -18,7 +32,7 @@ export default class EventFaker {
         )
     }
 
-    public generateListFamilyMemberValues(): ListFamilyMember {
+    public generatePublicFamilyMemberValues(): PublicFamilyMember {
         return {
             id: generateId(),
             name: generateId(),
@@ -113,3 +127,6 @@ export type GetPersonTargetAndPayload =
 
 export type SaveFamilyTargetAndPayload =
     SpruceSchemas.Eightbitstories.v2024_09_19.SaveFamilyEmitTargetAndPayload
+
+export type CreateFamilyMemberTargetAndPayload =
+    SpruceSchemas.Eightbitstories.v2024_09_19.CreateFamilyMemberEmitTargetAndPayload

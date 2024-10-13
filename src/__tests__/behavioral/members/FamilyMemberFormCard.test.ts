@@ -1,26 +1,34 @@
-import { formAssert } from '@sprucelabs/heartwood-view-controllers'
-import { fake } from '@sprucelabs/spruce-test-fixtures'
+import { formAssert, vcAssert } from '@sprucelabs/heartwood-view-controllers'
+import { eventFaker, fake } from '@sprucelabs/spruce-test-fixtures'
 import { test, assert } from '@sprucelabs/test-utils'
 import AbstractEightBitTest from '../../support/AbstractEightBitTest'
-import SpyFamilyMemberFormCard from './SpyFamilyMemberFormCard'
+import { CreateFamilyMemberTargetAndPayload } from '../../support/EventFaker'
+import FakeFamilyMemberFormCard from './FakeFamilyMemberFormCard'
 
 @fake.login()
 export default class FamilyMemberFormCardTest extends AbstractEightBitTest {
-    private static vc: SpyFamilyMemberFormCard
+    private static vc: FakeFamilyMemberFormCard
 
     private static readonly defailtAddingTitle = 'Add Family Member!'
+    private static wasOnSubmitHandlerInvoked: boolean
 
     protected static async beforeEach() {
         await super.beforeEach()
 
+        this.wasOnSubmitHandlerInvoked = false
+
         this.views.setController(
             'eightbitstories.family-member-form-card',
-            SpyFamilyMemberFormCard
+            FakeFamilyMemberFormCard
         )
         this.vc = this.views.Controller(
             'eightbitstories.family-member-form-card',
-            {}
-        ) as SpyFamilyMemberFormCard
+            {
+                onSubmit: () => {
+                    this.wasOnSubmitHandlerInvoked = true
+                },
+            }
+        ) as FakeFamilyMemberFormCard
     }
 
     @test()
@@ -47,6 +55,54 @@ export default class FamilyMemberFormCardTest extends AbstractEightBitTest {
         this.assertHeaderTitleEquals('Add There!')
         await this.setName('')
         this.assertHeaderTitleEquals(this.defailtAddingTitle)
+    }
+
+    @test()
+    protected static async submittingFormEmitsAddFamilyMemberEvent() {
+        let passedPayload:
+            | CreateFamilyMemberTargetAndPayload['payload']
+            | undefined
+
+        await this.eventFaker.fakeCreateFamilyMember(({ payload }) => {
+            passedPayload = payload
+        })
+
+        const values = await this.fillOutForm()
+
+        await this.submit()
+
+        assert.isEqualDeep(passedPayload, {
+            familyMember: values,
+        })
+    }
+
+    @test()
+    protected static async rendersAlertIfCreateEventThrows() {
+        await this.makeCreateEventThrow()
+        await this.fillOutFormSubmitAndAssertRendersAlert()
+        assert.isFalse(
+            this.wasOnSubmitHandlerInvoked,
+            `Invoked on submit handler and should not have!`
+        )
+    }
+
+    private static async fillOutFormSubmitAndAssertRendersAlert() {
+        await this.fillOutForm()
+        await vcAssert.assertRendersAlert(this.vc, () => this.submit())
+    }
+
+    private static async makeCreateEventThrow() {
+        await eventFaker.makeEventThrow(
+            'eightbitstories.create-family-member::v2024_09_19'
+        )
+    }
+
+    private static async submit() {
+        await this.vc.submit()
+    }
+
+    private static async fillOutForm() {
+        return this.vc.fillOutForm()
     }
 
     private static async setName(value: string) {

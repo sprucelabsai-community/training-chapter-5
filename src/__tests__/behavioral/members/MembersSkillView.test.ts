@@ -8,29 +8,30 @@ import {
 } from '@sprucelabs/heartwood-view-controllers'
 import { fake } from '@sprucelabs/spruce-test-fixtures'
 import { assert, test } from '@sprucelabs/test-utils'
-import { ListFamilyMember } from '../../../eightbitstories.types'
+import { PublicFamilyMember } from '../../../eightbitstories.types'
 import MembersSkillViewController from '../../../members/Members.svc'
 import FamilyMemberFormCardViewController from '../../../viewControllers/FamilyMemberFormCard.vc'
 import AbstractEightBitTest from '../../support/AbstractEightBitTest'
-import SpyFamilyMemberFormCard from './SpyFamilyMemberFormCard'
+import FakeFamilyMemberFormCard from './FakeFamilyMemberFormCard'
 
 @fake.login()
 export default class MembersSkillViewTest extends AbstractEightBitTest {
     private static vc: SpyMembersSkillView
-    private static fakedFamilyMembers: ListFamilyMember[]
+    private static fakedFamilyMembers: PublicFamilyMember[]
 
     protected static async beforeEach(): Promise<void> {
         await super.beforeEach()
 
         this.fakedFamilyMembers = []
 
+        await this.eventFaker.fakeCreateFamilyMember()
         await this.eventFaker.fakeListFamilyMembers(
             () => this.fakedFamilyMembers
         )
 
         this.views.setController(
             'eightbitstories.family-member-form-card',
-            SpyFamilyMemberFormCard
+            FakeFamilyMemberFormCard
         )
         this.views.setController('active-record-card', MockActiveRecordCard)
         this.views.setController('eightbitstories.members', SpyMembersSkillView)
@@ -119,6 +120,36 @@ export default class MembersSkillViewTest extends AbstractEightBitTest {
         )
     }
 
+    @test()
+    protected static async submittingAddFamilyHidesDialog() {
+        await this.load()
+        const { dialogVc, familyMemberFormCardVc } =
+            await this.clickAddAndAssertDialog()
+
+        await familyMemberFormCardVc.fillOutFormAndSubmit()
+
+        assert.isFalse(
+            dialogVc.getIsVisible(),
+            'Submitting form did not hide the dialog'
+        )
+    }
+
+    @test()
+    protected static async refreshesMembersAfterCreating() {
+        await this.load()
+        let wasHit = false
+        await this.eventFaker.fakeListFamilyMembers(() => {
+            wasHit = true
+        })
+        const { familyMemberFormCardVc } = await this.clickAddAndAssertDialog()
+
+        assert.isFalse(wasHit, 'You refreshed too soon!')
+
+        await familyMemberFormCardVc.fillOutFormAndSubmit()
+
+        assert.isTrue(wasHit, 'Did not try and list family members')
+    }
+
     private static async clickAddAndAssertDialog() {
         const dialogVc = await vcAssert.assertRendersDialog(this.vc, () =>
             interactor.clickButton(this.activeCardVc, 'add')
@@ -127,7 +158,7 @@ export default class MembersSkillViewTest extends AbstractEightBitTest {
         const familyMemberFormCardVc = vcAssert.assertRendersAsInstanceOf(
             dialogVc,
             FamilyMemberFormCardViewController
-        ) as SpyFamilyMemberFormCard
+        ) as FakeFamilyMemberFormCard
 
         return {
             dialogVc,
@@ -136,7 +167,7 @@ export default class MembersSkillViewTest extends AbstractEightBitTest {
     }
 
     private static seedFamilyMember() {
-        const familyMember = this.eventFaker.generateListFamilyMemberValues()
+        const familyMember = this.eventFaker.generatePublicFamilyMemberValues()
         this.fakedFamilyMembers.push(familyMember)
         return familyMember
     }

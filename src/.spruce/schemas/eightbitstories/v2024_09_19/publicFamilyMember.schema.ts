@@ -3,11 +3,11 @@ import { SpruceSchemas } from '../../schemas.types'
 
 
 
-const listFamilyMemberSchema: SpruceSchemas.Eightbitstories.v2024_09_19.ListFamilyMemberSchema  = {
-	id: 'listFamilyMember',
+const publicFamilyMemberSchema: SpruceSchemas.Eightbitstories.v2024_09_19.PublicFamilyMemberSchema  = {
+	id: 'publicFamilyMember',
 	version: 'v2024_09_19',
 	namespace: 'Eightbitstories',
-	name: '',
+	name: 'Public family member',
 	    fields: {
 	            /** . */
 	            'id': {
@@ -32,6 +32,6 @@ const listFamilyMemberSchema: SpruceSchemas.Eightbitstories.v2024_09_19.ListFami
 	    }
 }
 
-SchemaRegistry.getInstance().trackSchema(listFamilyMemberSchema)
+SchemaRegistry.getInstance().trackSchema(publicFamilyMemberSchema)
 
-export default listFamilyMemberSchema
+export default publicFamilyMemberSchema
