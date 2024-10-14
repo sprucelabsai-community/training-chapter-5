@@ -150,6 +150,48 @@ export default class MembersSkillViewTest extends AbstractEightBitTest {
         assert.isTrue(wasHit, 'Did not try and list family members')
     }
 
+    @test()
+    protected static async familyMemberRowRendersDeleteButton() {
+        const member = await this.loadWithOneFamilyMember()
+        this.activeCardVc.assertRowRendersButton(member.id, 'delete')
+    }
+
+    @test()
+    protected static async clickingDeleteMemberRendersConfirm() {
+        await this.loadWithOneFamilyMember()
+        await this.clickDeleteMemberAndAssertConfirm()
+    }
+
+    @test()
+    protected static async clickingDeleteEmitsDeleteFamilyMemberEvent() {
+        let wasHit = false
+        await this.eventFaker.fakeDeleteFamilyMember(() => {
+            wasHit = true
+        })
+
+        await this.loadWithOneFamilyMember()
+        const confirmVc = await this.clickDeleteMemberAndAssertConfirm()
+        await confirmVc.accept()
+
+        assert.isTrue(wasHit, `Did not emit delete family member event!`)
+    }
+
+    private static async clickDeleteMemberAndAssertConfirm() {
+        return await vcAssert.assertRendersConfirm(this.vc, () =>
+            interactor.clickButtonInRow(
+                this.activeCardVc.getListVc(),
+                0,
+                'delete'
+            )
+        )
+    }
+
+    private static async loadWithOneFamilyMember() {
+        const familyMember = this.seedFamilyMember()
+        await this.load()
+        return familyMember
+    }
+
     private static async clickAddAndAssertDialog() {
         const dialogVc = await vcAssert.assertRendersDialog(this.vc, () =>
             interactor.clickButton(this.activeCardVc, 'add')

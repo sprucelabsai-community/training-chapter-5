@@ -7,6 +7,17 @@ import { generateId } from '@sprucelabs/test-utils'
 import { Family, PublicFamilyMember } from '../../eightbitstories.types'
 
 export default class EventFaker {
+    public async fakeDeleteFamilyMember(cb?: () => void) {
+        await eventFaker.on(
+            'eightbitstories.delete-family-member::v2024_09_19',
+            () => {
+                cb?.()
+                return {
+                    success: true,
+                }
+            }
+        )
+    }
     public async fakeCreateFamilyMember(
         cb?: (targetAndPayload: CreateFamilyMemberTargetAndPayload) => void
     ) {

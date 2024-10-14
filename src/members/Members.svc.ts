@@ -6,7 +6,9 @@ import {
     Router,
     buildActiveRecordCard,
     ActiveRecordCardViewController,
+    ListRow,
 } from '@sprucelabs/heartwood-view-controllers'
+import { PublicFamilyMember } from '../eightbitstories.types'
 
 export default class MembersSkillViewController extends AbstractSkillViewController {
     public static id = 'members'
@@ -29,19 +31,8 @@ export default class MembersSkillViewController extends AbstractSkillViewControl
                     title: 'Family Members',
                     image: 'https://s3.amazonaws.com/storybook.sprucelabs.ai/members.jpg',
                 },
-                rowTransformer: (familyMember) => ({
-                    id: familyMember.id,
-                    cells: [
-                        {
-                            text: {
-                                content: familyMember.name,
-                            },
-                            subText: {
-                                content: familyMember.bio,
-                            },
-                        },
-                    ],
-                }),
+                rowTransformer: this.renderRow.bind(this),
+                columnWidths: ['fill'],
                 noResultsRow: {
                     height: 'content',
                     cells: [
@@ -68,6 +59,45 @@ export default class MembersSkillViewController extends AbstractSkillViewControl
                     ],
                 },
             })
+        )
+    }
+
+    private renderRow(familyMember: PublicFamilyMember): ListRow {
+        return {
+            id: familyMember.id,
+            cells: [
+                {
+                    text: {
+                        content: familyMember.name,
+                    },
+                    subText: {
+                        content: familyMember.bio,
+                    },
+                },
+                {
+                    button: {
+                        id: 'delete',
+                        lineIcon: 'user-delete',
+                        type: 'destructive',
+                        onClick: this.handleClickDelete.bind(
+                            this,
+                            familyMember
+                        ),
+                    },
+                },
+            ],
+        }
+    }
+
+    private async handleClickDelete(member: PublicFamilyMember) {
+        await this.confirm({
+            isDestructive: true,
+            message: `Are you sure you want to delete ${member.name}?`,
+        })
+
+        const client = await this.connectToApi()
+        await client.emitAndFlattenResponses(
+            'eightbitstories.delete-family-member::v2024_09_19'
         )
     }
 
