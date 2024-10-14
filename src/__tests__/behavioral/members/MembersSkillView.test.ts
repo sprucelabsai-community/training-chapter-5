@@ -6,12 +6,13 @@ import {
     MockActiveRecordCard,
     vcAssert,
 } from '@sprucelabs/heartwood-view-controllers'
-import { fake } from '@sprucelabs/spruce-test-fixtures'
+import { eventFaker, fake } from '@sprucelabs/spruce-test-fixtures'
 import { assert, test } from '@sprucelabs/test-utils'
 import { PublicFamilyMember } from '../../../eightbitstories.types'
 import MembersSkillViewController from '../../../members/Members.svc'
 import FamilyMemberFormCardViewController from '../../../viewControllers/FamilyMemberFormCard.vc'
 import AbstractEightBitTest from '../../support/AbstractEightBitTest'
+import { DeleteFamilyMemberTargetAndPayload } from '../../support/EventFaker'
 import FakeFamilyMemberFormCard from './FakeFamilyMemberFormCard'
 
 @fake.login()
@@ -24,6 +25,7 @@ export default class MembersSkillViewTest extends AbstractEightBitTest {
 
         this.fakedFamilyMembers = []
 
+        await this.eventFaker.fakeDeleteFamilyMember()
         await this.eventFaker.fakeCreateFamilyMember()
         await this.eventFaker.fakeListFamilyMembers(
             () => this.fakedFamilyMembers
@@ -152,41 +154,100 @@ export default class MembersSkillViewTest extends AbstractEightBitTest {
 
     @test()
     protected static async familyMemberRowRendersDeleteButton() {
-        const member = await this.loadWithOneFamilyMember()
+        const member = await this.seedFamilyMemberAndLoad()
         this.activeCardVc.assertRowRendersButton(member.id, 'delete')
     }
 
     @test()
     protected static async clickingDeleteMemberRendersConfirm() {
-        await this.loadWithOneFamilyMember()
+        await this.seedFamilyMemberAndLoad()
         await this.clickDeleteMemberAndAssertConfirm()
     }
 
     @test()
     protected static async clickingDeleteEmitsDeleteFamilyMemberEvent() {
-        let wasHit = false
-        await this.eventFaker.fakeDeleteFamilyMember(() => {
-            wasHit = true
+        let passedTarget:
+            | DeleteFamilyMemberTargetAndPayload['target']
+            | undefined
+
+        await this.eventFaker.fakeDeleteFamilyMember(({ target }) => {
+            passedTarget = target
         })
 
-        await this.loadWithOneFamilyMember()
-        const confirmVc = await this.clickDeleteMemberAndAssertConfirm()
-        await confirmVc.accept()
+        const member = await this.seedFamilyMemberAndLoad()
+        await this.clickDeleteAndConfirm()
 
-        assert.isTrue(wasHit, `Did not emit delete family member event!`)
+        assert.isEqualDeep(passedTarget, {
+            familyMemberId: member.id,
+        })
     }
 
-    private static async clickDeleteMemberAndAssertConfirm() {
+    @test()
+    protected static async deletingMemberDeletesRow() {
+        const member = await this.seedFamilyMemberAndLoad()
+        await this.clickDeleteAndConfirm()
+        this.assertDoesNotRenderRow(member.id)
+    }
+
+    @test()
+    protected static async deletingSecondMemberDeletesSecondRow() {
+        this.seedFamilyMember()
+        const member = await this.seedFamilyMemberAndLoad()
+        await this.clickDeleteAndConfirm(member.id)
+        this.assertDoesNotRenderRow(member.id)
+    }
+
+    @test()
+    protected static async deleteEventThrowingRendersAlert() {
+        await this.makeDeleteEventThrow()
+        await this.seedFamilyMemberAndLoad()
+        await this.clickDeleteConfirmAndAssertAlert()
+    }
+
+    @test()
+    protected static async doesNotDeleteMemberIfEventFails() {
+        await this.makeDeleteEventThrow()
+        const member = await this.seedFamilyMemberAndLoad()
+        await this.clickDeleteConfirmAndAssertAlert()
+        this.assertListRendersRow(member.id)
+    }
+
+    @test()
+    protected static async doesNotEmitEventIfConfirmationIsDeclined() {
+        await this.makeDeleteEventThrow()
+        await this.seedFamilyMemberAndLoad()
+        const confirmVc = await this.clickDeleteMemberAndAssertConfirm()
+        await confirmVc.decline()
+    }
+
+    private static async clickDeleteConfirmAndAssertAlert() {
+        return await vcAssert.assertRendersAlert(this.vc, () =>
+            this.clickDeleteAndConfirm()
+        )
+    }
+
+    private static async makeDeleteEventThrow() {
+        await eventFaker.makeEventThrow(
+            'eightbitstories.delete-family-member::v2024_09_19'
+        )
+    }
+
+    private static async clickDeleteAndConfirm(row?: string) {
+        const confirmVc = await this.clickDeleteMemberAndAssertConfirm(row)
+        await confirmVc.accept()
+    }
+
+    private static async clickDeleteMemberAndAssertConfirm(row?: string) {
         return await vcAssert.assertRendersConfirm(this.vc, () =>
             interactor.clickButtonInRow(
                 this.activeCardVc.getListVc(),
-                0,
+                row ?? 0,
                 'delete'
             )
         )
     }
 
-    private static async loadWithOneFamilyMember() {
+    private static async seedFamilyMemberAndLoad() {
         const familyMember = this.seedFamilyMember()
         await this.load()
         return familyMember
@@ -219,7 +280,11 @@ export default class MembersSkillViewTest extends AbstractEightBitTest {
     }
 
     private static assertDoesNotRenderNoResultsRow() {
-        this.activeCardVc.assertDoesNotRenderRow('no-results')
+        this.assertDoesNotRenderRow('no-results')
+    }
+
+    private static assertDoesNotRenderRow(id: string) {
+        this.activeCardVc.assertDoesNotRenderRow(id)
     }
 
     private static async load() {

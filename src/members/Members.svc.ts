@@ -90,15 +90,32 @@ export default class MembersSkillViewController extends AbstractSkillViewControl
     }
 
     private async handleClickDelete(member: PublicFamilyMember) {
-        await this.confirm({
+        const didConfirm = await this.confirm({
             isDestructive: true,
             message: `Are you sure you want to delete ${member.name}?`,
         })
 
-        const client = await this.connectToApi()
-        await client.emitAndFlattenResponses(
-            'eightbitstories.delete-family-member::v2024_09_19'
-        )
+        if (!didConfirm) {
+            return
+        }
+
+        try {
+            const client = await this.connectToApi()
+            await client.emitAndFlattenResponses(
+                'eightbitstories.delete-family-member::v2024_09_19',
+                {
+                    target: {
+                        familyMemberId: member.id,
+                    },
+                }
+            )
+            this.activeCardVc.deleteRow(member.id)
+        } catch (err: any) {
+            this.log.error('Failed to delete family member', err)
+            await this.alert({
+                message: err.message ?? 'Failed to delete family member!',
+            })
+        }
     }
 
     private async handleClickAddMember() {

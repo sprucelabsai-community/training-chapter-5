@@ -1,6 +1,7 @@
 import { coreEventContracts } from '@sprucelabs/mercury-core-events'
 
 import eightbitstoriesCreateFamilyMemberEventContract_v2024_09_19, { CreateFamilyMemberEventContract as EightbitstoriesCreateFamilyMemberEventContract_v2024_09_19  } from '#spruce/events/eightbitstories/createFamilyMember.v2024_09_19.contract'
+import eightbitstoriesDeleteFamilyMemberEventContract_v2024_09_19, { DeleteFamilyMemberEventContract as EightbitstoriesDeleteFamilyMemberEventContract_v2024_09_19  } from '#spruce/events/eightbitstories/deleteFamilyMember.v2024_09_19.contract'
 import heartwoodDidRegisterSkillViewsEventContract_v2021_02_11, { DidRegisterSkillViewsEventContract as HeartwoodDidRegisterSkillViewsEventContract_v2021_02_11  } from '#spruce/events/heartwood/didRegisterSkillViews.v2021_02_11.contract'
 import heartwoodGenerateUrlEventContract_v2021_02_11, { GenerateUrlEventContract as HeartwoodGenerateUrlEventContract_v2021_02_11  } from '#spruce/events/heartwood/generateUrl.v2021_02_11.contract'
 import heartwoodGetActiveThemeEventContract_v2021_02_11, { GetActiveThemeEventContract as HeartwoodGetActiveThemeEventContract_v2021_02_11  } from '#spruce/events/heartwood/getActiveTheme.v2021_02_11.contract'
@@ -16,6 +17,7 @@ import heartwoodUpsertThemeEventContract_v2021_02_11, { UpsertThemeEventContract
 
 export default [
     eightbitstoriesCreateFamilyMemberEventContract_v2024_09_19,
+    eightbitstoriesDeleteFamilyMemberEventContract_v2024_09_19,
     heartwoodDidRegisterSkillViewsEventContract_v2021_02_11,
     heartwoodGenerateUrlEventContract_v2021_02_11,
     heartwoodGetActiveThemeEventContract_v2021_02_11,
@@ -35,6 +37,9 @@ declare module '@sprucelabs/mercury-types/build/types/mercury.types' {
     interface SkillEventSignatures {
     
     'eightbitstories.create-family-member::v2024_09_19': EightbitstoriesCreateFamilyMemberEventContract_v2024_09_19['eventSignatures']['eightbitstories.create-family-member::v2024_09_19'],
+    
+    
+    'eightbitstories.delete-family-member::v2024_09_19': EightbitstoriesDeleteFamilyMemberEventContract_v2024_09_19['eventSignatures']['eightbitstories.delete-family-member::v2024_09_19'],
     
     
     'heartwood.did-register-skill-views::v2021_02_11': HeartwoodDidRegisterSkillViewsEventContract_v2021_02_11['eventSignatures']['heartwood.did-register-skill-views::v2021_02_11'],
