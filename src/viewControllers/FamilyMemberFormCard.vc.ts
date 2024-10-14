@@ -105,7 +105,8 @@ export default class FamilyMemberFormCardViewController extends AbstractViewCont
 type OnCancelHandler = () => void | Promise<void>
 type OnSubmitHandler = () => void | Promise<void>
 
-interface FamilyMemberFormCardOptions {
+export interface FamilyMemberFormCardOptions {
     onCancel?: OnCancelHandler
     onSubmit?: OnSubmitHandler
+    familyMember?: PublicFamilyMember
 }

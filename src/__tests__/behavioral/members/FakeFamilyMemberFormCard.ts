@@ -1,10 +1,29 @@
-import { interactor } from '@sprucelabs/heartwood-view-controllers'
+import {
+    interactor,
+    ViewControllerOptions,
+} from '@sprucelabs/heartwood-view-controllers'
 import { generateId } from '@sprucelabs/test-utils'
-import FamilyMemberFormCardViewController from '../../../viewControllers/FamilyMemberFormCard.vc'
+import { PublicFamilyMember } from '../../../eightbitstories.types'
+import FamilyMemberFormCardViewController, {
+    FamilyMemberFormCardOptions,
+} from '../../../viewControllers/FamilyMemberFormCard.vc'
 
 export default class FakeFamilyMemberFormCard extends FamilyMemberFormCardViewController {
+    private memberFromConstructor?: PublicFamilyMember
+
+    public constructor(
+        options: ViewControllerOptions & FamilyMemberFormCardOptions
+    ) {
+        super(options)
+        this.memberFromConstructor = options.familyMember
+    }
+
     public getFormVc() {
         return this.formVc
+    }
+
+    public getMemberPassedToConstructor() {
+        return this.memberFromConstructor
     }
 
     public async fillOutForm() {

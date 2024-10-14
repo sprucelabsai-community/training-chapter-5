@@ -220,6 +220,25 @@ export default class MembersSkillViewTest extends AbstractEightBitTest {
         await confirmVc.decline()
     }
 
+    @test()
+    protected static async clickingMemberRowRendersDialog() {
+        const member = await this.seedFamilyMemberAndLoad()
+        const dialogVc = await vcAssert.assertRendersDialog(this.vc, () =>
+            interactor.clickRow(this.listVc, 0)
+        )
+        const fakeFormCardVc = vcAssert.assertRendersAsInstanceOf(
+            dialogVc,
+            FamilyMemberFormCardViewController
+        ) as FakeFamilyMemberFormCard
+
+        const actual = fakeFormCardVc.getMemberPassedToConstructor()
+        assert.isEqualDeep(
+            actual,
+            member,
+            'You did not pass the family member to the consturctor'
+        )
+    }
+
     private static async clickDeleteConfirmAndAssertAlert() {
         return await vcAssert.assertRendersAlert(this.vc, () =>
             this.clickDeleteAndConfirm()
@@ -239,12 +258,12 @@ export default class MembersSkillViewTest extends AbstractEightBitTest {
 
     private static async clickDeleteMemberAndAssertConfirm(row?: string) {
         return await vcAssert.assertRendersConfirm(this.vc, () =>
-            interactor.clickButtonInRow(
-                this.activeCardVc.getListVc(),
-                row ?? 0,
-                'delete'
-            )
+            interactor.clickButtonInRow(this.listVc, row ?? 0, 'delete')
         )
+    }
+
+    private static get listVc() {
+        return this.activeCardVc.getListVc()
     }
 
     private static async seedFamilyMemberAndLoad() {

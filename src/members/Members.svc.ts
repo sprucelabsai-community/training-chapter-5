@@ -65,6 +65,7 @@ export default class MembersSkillViewController extends AbstractSkillViewControl
     private renderRow(familyMember: PublicFamilyMember): ListRow {
         return {
             id: familyMember.id,
+            onClick: this.handleClickRow.bind(this, familyMember),
             cells: [
                 {
                     text: {
@@ -87,6 +88,13 @@ export default class MembersSkillViewController extends AbstractSkillViewControl
                 },
             ],
         }
+    }
+
+    private async handleClickRow(familyMember: PublicFamilyMember) {
+        const vc = this.Controller('eightbitstories.family-member-form-card', {
+            familyMember,
+        })
+        this.renderInDialog(vc.render())
     }
 
     private async handleClickDelete(member: PublicFamilyMember) {
