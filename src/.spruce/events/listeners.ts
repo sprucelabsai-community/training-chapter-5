@@ -30,6 +30,13 @@ const listeners: EventFeatureListener[] = [
         isGlobal: require('../../family/listeners/eightbitstories/submit-feedback.v2024_09_19.listener').isGlobal,
     },
     {
+        eventName: 'create-family-member',
+        eventNamespace: 'eightbitstories',
+        version: 'v2024_09_19',
+        callback: require('../../listeners/eightbitstories/create-family-member.v2024_09_19.listener').default,
+        isGlobal: require('../../listeners/eightbitstories/create-family-member.v2024_09_19.listener').isGlobal,
+    },
+    {
         eventName: 'list-family-members',
         eventNamespace: 'eightbitstories',
         version: 'v2024_09_19',
