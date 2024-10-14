@@ -1,6 +1,7 @@
 import { formAssert, vcAssert } from '@sprucelabs/heartwood-view-controllers'
 import { eventFaker, fake } from '@sprucelabs/spruce-test-fixtures'
 import { test, assert } from '@sprucelabs/test-utils'
+import { PublicFamilyMember } from '../../../eightbitstories.types'
 import AbstractEightBitTest from '../../support/AbstractEightBitTest'
 import { CreateFamilyMemberTargetAndPayload } from '../../support/EventFaker'
 import FakeFamilyMemberFormCard from './FakeFamilyMemberFormCard'
@@ -11,24 +12,19 @@ export default class FamilyMemberFormCardTest extends AbstractEightBitTest {
 
     private static readonly defailtAddingTitle = 'Add Family Member!'
     private static wasOnSubmitHandlerInvoked: boolean
+    private static fakedFamilyMember?: PublicFamilyMember
 
     protected static async beforeEach() {
         await super.beforeEach()
 
+        delete this.fakedFamilyMember
         this.wasOnSubmitHandlerInvoked = false
 
         this.views.setController(
             'eightbitstories.family-member-form-card',
             FakeFamilyMemberFormCard
         )
-        this.vc = this.views.Controller(
-            'eightbitstories.family-member-form-card',
-            {
-                onSubmit: () => {
-                    this.wasOnSubmitHandlerInvoked = true
-                },
-            }
-        ) as FakeFamilyMemberFormCard
+        this.vc = this.Vc()
     }
 
     @test()
@@ -47,7 +43,7 @@ export default class FamilyMemberFormCardTest extends AbstractEightBitTest {
     }
 
     @test()
-    protected static async headerTitleUpdatesWhyTyping() {
+    protected static async headerTitleUpdatesWhileTyping() {
         this.assertHeaderTitleEquals(this.defailtAddingTitle)
         await this.setName('Hello')
         this.assertHeaderTitleEquals('Add Hello!')
@@ -86,6 +82,21 @@ export default class FamilyMemberFormCardTest extends AbstractEightBitTest {
         )
     }
 
+    @test()
+    protected static async emitsGetFamilyMemberIfConstructedWithOne() {
+        this.fakedFamilyMember =
+            this.eventFaker.generatePublicFamilyMemberValues()
+        this.vc = this.Vc()
+
+        let wasHit = false
+        await this.eventFaker.fakeGetFamilyMember(() => {
+            wasHit = true
+        })
+
+        await this.vc.load()
+        assert.isTrue(wasHit, `You gotta emit get-family-member on load!`)
+    }
+
     private static async fillOutFormSubmitAndAssertRendersAlert() {
         await this.fillOutForm()
         await vcAssert.assertRendersAlert(this.vc, () => this.submit())
@@ -120,5 +131,17 @@ export default class FamilyMemberFormCardTest extends AbstractEightBitTest {
 
     private static get formVc() {
         return this.vc.getFormVc()
+    }
+
+    private static Vc(): FakeFamilyMemberFormCard {
+        return this.views.Controller(
+            'eightbitstories.family-member-form-card',
+            {
+                familyMember: this.fakedFamilyMember,
+                onSubmit: () => {
+                    this.wasOnSubmitHandlerInvoked = true
+                },
+            }
+        ) as FakeFamilyMemberFormCard
     }
 }

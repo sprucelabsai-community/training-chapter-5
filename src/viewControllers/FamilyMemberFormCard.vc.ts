@@ -97,6 +97,13 @@ export default class FamilyMemberFormCardViewController extends AbstractViewCont
         await this.onCancelHandler?.()
     }
 
+    public async load() {
+        const client = await this.connectToApi()
+        await client.emitAndFlattenResponses(
+            'eightbitstories.get-family-member::v2024_09_19'
+        )
+    }
+
     public render() {
         return this.cardVc.render()
     }
