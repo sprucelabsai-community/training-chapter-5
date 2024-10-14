@@ -9,7 +9,8 @@
     "permission",
     "event",
     "view",
-    "store"
+    "store",
+    "error"
   ],
   "dependencies": [
     {

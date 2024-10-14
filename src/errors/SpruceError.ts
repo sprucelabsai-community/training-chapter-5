@@ -7,6 +7,10 @@ export default class SpruceError extends AbstractSpruceError<ErrorOptions> {
         let message
 
         switch (options?.code) {
+            case 'FAMILY_MEMBER_NOT_FOUND':
+                message = `I could not find a family member with the id of ${options.familyMemberId}!`
+                break
+
             default:
                 message = super.friendlyMessage()
         }
