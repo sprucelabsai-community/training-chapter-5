@@ -100,15 +100,19 @@ export default class FamilyMemberFormCardViewController extends AbstractViewCont
     }
 
     public async load() {
-        const client = await this.connectToApi()
-        await client.emitAndFlattenResponses(
-            'eightbitstories.get-family-member::v2024_09_19',
-            {
-                target: {
-                    familyMemberId: this.familyMember.id,
-                },
-            }
-        )
+        if (this.familyMember) {
+            const client = await this.connectToApi()
+            const [{ familyMember }] = await client.emitAndFlattenResponses(
+                'eightbitstories.get-family-member::v2024_09_19',
+                {
+                    target: {
+                        familyMemberId: this.familyMember.id,
+                    },
+                }
+            )
+
+            await this.formVc.setValues(familyMember)
+        }
     }
 
     public render() {

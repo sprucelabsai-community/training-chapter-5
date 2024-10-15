@@ -8,8 +8,9 @@ import FamilyMemberFormCardViewController, {
     FamilyMemberFormCardOptions,
 } from '../../../viewControllers/FamilyMemberFormCard.vc'
 
-export default class FakeFamilyMemberFormCard extends FamilyMemberFormCardViewController {
+export default class SpyFamilyMemberFormCard extends FamilyMemberFormCardViewController {
     private memberFromConstructor?: PublicFamilyMember
+    private wasLoaded = false
 
     public constructor(
         options: ViewControllerOptions & FamilyMemberFormCardOptions
@@ -26,6 +27,10 @@ export default class FakeFamilyMemberFormCard extends FamilyMemberFormCardViewCo
         return this.memberFromConstructor
     }
 
+    public getWasLoaded(): boolean {
+        return this.wasLoaded
+    }
+
     public async fillOutForm() {
         const values = {
             name: generateId(),
@@ -34,6 +39,11 @@ export default class FakeFamilyMemberFormCard extends FamilyMemberFormCardViewCo
 
         await this.formVc.setValues(values)
         return values
+    }
+
+    public async load() {
+        this.wasLoaded = true
+        await super.load()
     }
 
     public async submit() {

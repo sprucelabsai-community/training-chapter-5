@@ -13,7 +13,7 @@ import MembersSkillViewController from '../../../members/Members.svc'
 import FamilyMemberFormCardViewController from '../../../viewControllers/FamilyMemberFormCard.vc'
 import AbstractEightBitTest from '../../support/AbstractEightBitTest'
 import { DeleteFamilyMemberTargetAndPayload } from '../../support/EventFaker'
-import FakeFamilyMemberFormCard from './FakeFamilyMemberFormCard'
+import SpyFamilyMemberFormCard from './SpyFamilyMemberFormCard'
 
 @fake.login()
 export default class MembersSkillViewTest extends AbstractEightBitTest {
@@ -33,7 +33,7 @@ export default class MembersSkillViewTest extends AbstractEightBitTest {
 
         this.views.setController(
             'eightbitstories.family-member-form-card',
-            FakeFamilyMemberFormCard
+            SpyFamilyMemberFormCard
         )
         this.views.setController('active-record-card', MockActiveRecordCard)
         this.views.setController('eightbitstories.members', SpyMembersSkillView)
@@ -222,21 +222,38 @@ export default class MembersSkillViewTest extends AbstractEightBitTest {
 
     @test()
     protected static async clickingMemberRowRendersDialog() {
-        const member = await this.seedFamilyMemberAndLoad()
-        const dialogVc = await vcAssert.assertRendersDialog(this.vc, () =>
-            interactor.clickRow(this.listVc, 0)
-        )
-        const fakeFormCardVc = vcAssert.assertRendersAsInstanceOf(
-            dialogVc,
-            FamilyMemberFormCardViewController
-        ) as FakeFamilyMemberFormCard
+        const { spyFormCardVc, member } =
+            await this.seedFamilyMemberClickRowAssertRendersDialog()
 
-        const actual = fakeFormCardVc.getMemberPassedToConstructor()
+        const actual = spyFormCardVc.getMemberPassedToConstructor()
         assert.isEqualDeep(
             actual,
             member,
             'You did not pass the family member to the consturctor'
         )
+    }
+
+    @test()
+    protected static async loadsMemberFormCardWhenClickingRow() {
+        const { spyFormCardVc } =
+            await this.seedFamilyMemberClickRowAssertRendersDialog()
+
+        assert.isTrue(
+            spyFormCardVc.getWasLoaded(),
+            'Your form card was not loaded!'
+        )
+    }
+
+    private static async seedFamilyMemberClickRowAssertRendersDialog() {
+        const member = await this.seedFamilyMemberAndLoad()
+        const dialogVc = await vcAssert.assertRendersDialog(this.vc, () =>
+            interactor.clickRow(this.listVc, 0)
+        )
+        const spyFormCardVc = vcAssert.assertRendersAsInstanceOf(
+            dialogVc,
+            FamilyMemberFormCardViewController
+        ) as SpyFamilyMemberFormCard
+        return { spyFormCardVc, member }
     }
 
     private static async clickDeleteConfirmAndAssertAlert() {
@@ -280,7 +297,7 @@ export default class MembersSkillViewTest extends AbstractEightBitTest {
         const familyMemberFormCardVc = vcAssert.assertRendersAsInstanceOf(
             dialogVc,
             FamilyMemberFormCardViewController
-        ) as FakeFamilyMemberFormCard
+        ) as SpyFamilyMemberFormCard
 
         return {
             dialogVc,

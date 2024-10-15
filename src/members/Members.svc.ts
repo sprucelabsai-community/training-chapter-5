@@ -95,6 +95,7 @@ export default class MembersSkillViewController extends AbstractSkillViewControl
             familyMember,
         })
         this.renderInDialog(vc.render())
+        await vc.load()
     }
 
     private async handleClickDelete(member: PublicFamilyMember) {

@@ -7,11 +7,11 @@ import {
     CreateFamilyMemberTargetAndPayload,
     GetFamilyMemberTargetAndPayload,
 } from '../../support/EventFaker'
-import FakeFamilyMemberFormCard from './FakeFamilyMemberFormCard'
+import SpyFamilyMemberFormCard from './SpyFamilyMemberFormCard'
 
 @fake.login()
 export default class FamilyMemberFormCardTest extends AbstractEightBitTest {
-    private static vc: FakeFamilyMemberFormCard
+    private static vc: SpyFamilyMemberFormCard
 
     private static readonly defailtAddingTitle = 'Add Family Member!'
     private static wasOnSubmitHandlerInvoked: boolean
@@ -21,11 +21,16 @@ export default class FamilyMemberFormCardTest extends AbstractEightBitTest {
         await super.beforeEach()
 
         delete this.fakedFamilyMember
+
         this.wasOnSubmitHandlerInvoked = false
+
+        await this.eventFaker.fakeGetFamilyMember(() => {
+            return this.fakedFamilyMember
+        })
 
         this.views.setController(
             'eightbitstories.family-member-form-card',
-            FakeFamilyMemberFormCard
+            SpyFamilyMemberFormCard
         )
         this.vc = this.Vc()
     }
@@ -87,20 +92,54 @@ export default class FamilyMemberFormCardTest extends AbstractEightBitTest {
 
     @test()
     protected static async emitsGetFamilyMemberOnLoadIfConstructedWithOne() {
-        this.fakedFamilyMember =
-            this.eventFaker.generatePublicFamilyMemberValues()
-        this.vc = this.Vc()
-
         let passedTarget: GetFamilyMemberTargetAndPayload['target'] | undefined
 
         await this.eventFaker.fakeGetFamilyMember(({ target }) => {
             passedTarget = target
         })
 
-        await this.vc.load()
+        await this.reloadWithFamilyMember()
+
         assert.isEqualDeep(passedTarget, {
-            familyMemberId: this.fakedFamilyMember.id,
+            familyMemberId: this.fakedFamilyMember!.id,
         })
+    }
+
+    @test()
+    protected static async populatesFormWithLoadedFamilyMember() {
+        await this.reloadWithFamilyMember()
+
+        const values = this.formVc.getValues()
+        assert.isEqual(
+            values.name,
+            this.fakedFamilyMember!.name,
+            "You didn't set the name field of the form"
+        )
+
+        assert.isEqual(
+            values.bio,
+            this.fakedFamilyMember!.bio,
+            "You didn't set the bio field of the form"
+        )
+    }
+
+    @test()
+    protected static async doesNotCrashIfLoadingWithoutFakedPerson() {
+        await this.load()
+    }
+
+    private static async reloadWithFamilyMember() {
+        this.setupWithFamilyMember()
+        await this.load()
+    }
+
+    private static setupWithFamilyMember() {
+        this.seedFamilyMember()
+        this.vc = this.Vc()
+    }
+
+    private static async load() {
+        await this.vc.load()
     }
 
     private static async fillOutFormSubmitAndAssertRendersAlert() {
@@ -139,7 +178,12 @@ export default class FamilyMemberFormCardTest extends AbstractEightBitTest {
         return this.vc.getFormVc()
     }
 
-    private static Vc(): FakeFamilyMemberFormCard {
+    private static seedFamilyMember() {
+        this.fakedFamilyMember =
+            this.eventFaker.generatePublicFamilyMemberValues()
+    }
+
+    private static Vc(): SpyFamilyMemberFormCard {
         return this.views.Controller(
             'eightbitstories.family-member-form-card',
             {
@@ -148,6 +192,6 @@ export default class FamilyMemberFormCardTest extends AbstractEightBitTest {
                     this.wasOnSubmitHandlerInvoked = true
                 },
             }
-        ) as FakeFamilyMemberFormCard
+        ) as SpyFamilyMemberFormCard
     }
 }

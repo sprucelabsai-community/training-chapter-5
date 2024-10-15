@@ -8,14 +8,17 @@ import { Family, PublicFamilyMember } from '../../eightbitstories.types'
 
 export default class EventFaker {
     public async fakeGetFamilyMember(
-        cb?: (targetAndPayload: GetFamilyMemberTargetAndPayload) => void
+        cb?: (
+            targetAndPayload: GetFamilyMemberTargetAndPayload
+        ) => void | PublicFamilyMember
     ) {
         await eventFaker.on(
             'eightbitstories.get-family-member::v2024_09_19',
             (targetAndPayload) => {
-                cb?.(targetAndPayload)
                 return {
-                    familyMember: this.generatePublicFamilyMemberValues(),
+                    familyMember:
+                        cb?.(targetAndPayload) ??
+                        this.generatePublicFamilyMemberValues(),
                 }
             }
         )
