@@ -3,7 +3,10 @@ import { eventFaker, fake } from '@sprucelabs/spruce-test-fixtures'
 import { test, assert } from '@sprucelabs/test-utils'
 import { PublicFamilyMember } from '../../../eightbitstories.types'
 import AbstractEightBitTest from '../../support/AbstractEightBitTest'
-import { CreateFamilyMemberTargetAndPayload } from '../../support/EventFaker'
+import {
+    CreateFamilyMemberTargetAndPayload,
+    GetFamilyMemberTargetAndPayload,
+} from '../../support/EventFaker'
 import FakeFamilyMemberFormCard from './FakeFamilyMemberFormCard'
 
 @fake.login()
@@ -83,18 +86,21 @@ export default class FamilyMemberFormCardTest extends AbstractEightBitTest {
     }
 
     @test()
-    protected static async emitsGetFamilyMemberIfConstructedWithOne() {
+    protected static async emitsGetFamilyMemberOnLoadIfConstructedWithOne() {
         this.fakedFamilyMember =
             this.eventFaker.generatePublicFamilyMemberValues()
         this.vc = this.Vc()
 
-        let wasHit = false
-        await this.eventFaker.fakeGetFamilyMember(() => {
-            wasHit = true
+        let passedTarget: GetFamilyMemberTargetAndPayload['target'] | undefined
+
+        await this.eventFaker.fakeGetFamilyMember(({ target }) => {
+            passedTarget = target
         })
 
         await this.vc.load()
-        assert.isTrue(wasHit, `You gotta emit get-family-member on load!`)
+        assert.isEqualDeep(passedTarget, {
+            familyMemberId: this.fakedFamilyMember.id,
+        })
     }
 
     private static async fillOutFormSubmitAndAssertRendersAlert() {

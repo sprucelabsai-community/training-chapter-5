@@ -20,16 +20,18 @@ export default class FamilyMemberFormCardViewController extends AbstractViewCont
     protected formVc: FormViewController<FamilyMemberSchema>
     private onCancelHandler?: OnCancelHandler
     private onSubmitHandler?: OnSubmitHandler
+    private familyMember?: PublicFamilyMember
 
     public constructor(
         options: ViewControllerOptions & FamilyMemberFormCardOptions
     ) {
         super(options)
 
-        const { onCancel, onSubmit } = options
+        const { onCancel, onSubmit, familyMember } = options
 
         this.onCancelHandler = onCancel
         this.onSubmitHandler = onSubmit
+        this.familyMember = familyMember
 
         this.formVc = this.FormVc()
         this.cardVc = this.CardVc()
@@ -100,7 +102,12 @@ export default class FamilyMemberFormCardViewController extends AbstractViewCont
     public async load() {
         const client = await this.connectToApi()
         await client.emitAndFlattenResponses(
-            'eightbitstories.get-family-member::v2024_09_19'
+            'eightbitstories.get-family-member::v2024_09_19',
+            {
+                target: {
+                    familyMemberId: this.familyMember.id,
+                },
+            }
         )
     }
 
