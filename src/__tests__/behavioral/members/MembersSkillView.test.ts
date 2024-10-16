@@ -286,6 +286,14 @@ export default class MembersSkillViewTest extends AbstractEightBitTest {
         )
     }
 
+    @test()
+    protected static async membersListHasExpectedPaging() {
+        activeRecordCardAssert.assertPagingOptionsEqual(this.activeCardVc, {
+            pageSize: 5,
+            shouldPageClientSide: true,
+        })
+    }
+
     private static async seedFamilyMemberClickRowAssertRendersDialog() {
         const member = await this.seedFamilyMemberAndLoad()
         const dialogVc = await vcAssert.assertRendersDialog(this.vc, () =>

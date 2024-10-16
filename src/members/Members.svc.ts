@@ -31,6 +31,10 @@ export default class MembersSkillViewController extends AbstractSkillViewControl
                     title: 'Family Members',
                     image: 'https://s3.amazonaws.com/storybook.sprucelabs.ai/members.jpg',
                 },
+                paging: {
+                    pageSize: 5,
+                    shouldPageClientSide: true,
+                },
                 rowTransformer: this.renderRow.bind(this),
                 columnWidths: ['fill'],
                 noResultsRow: {

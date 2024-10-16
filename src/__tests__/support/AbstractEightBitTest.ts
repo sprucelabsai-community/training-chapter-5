@@ -26,10 +26,12 @@ export default abstract class AbstractEightBitTest extends AbstractSpruceFixture
         return family
     }
 
-    protected static async getFirstFamilyMember() {
+    protected static async getFirstFamilyMember(options?: {
+        shouldIncludePrivateFields?: boolean
+    }) {
         const member = await this.familyMembers.findOne(
             {},
-            { shouldIncludePrivateFields: true }
+            { shouldIncludePrivateFields: true, ...options }
         )
         assert.isTruthy(
             member,

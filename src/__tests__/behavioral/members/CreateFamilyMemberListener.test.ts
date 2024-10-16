@@ -1,6 +1,9 @@
 import { fake } from '@sprucelabs/spruce-test-fixtures'
 import { test, assert, generateId } from '@sprucelabs/test-utils'
-import { CreateFamilyMember } from '../../../eightbitstories.types'
+import {
+    CreateFamilyMember,
+    FamilyMember,
+} from '../../../eightbitstories.types'
 import AbstractEightBitTest from '../../support/AbstractEightBitTest'
 
 @fake.login()
@@ -46,8 +49,7 @@ export default class CreateFamilyMemberListenerTest extends AbstractEightBitTest
     @test()
     protected static async returnsCreatedPersonWithExpectedValues() {
         const actual = await this.emitCreateMember()
-        const expected = await this.getFirstFamilyMember()
-
+        const expected = (await this.getFirstFamilyMember()) as FamilyMember
         assert.isEqualDeep({ ...actual, source: expected.source }, expected)
     }
 
