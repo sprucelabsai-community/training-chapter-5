@@ -18,8 +18,8 @@ export default class FamilyMemberFormCardViewController extends AbstractViewCont
     private cardVc: CardViewController
 
     protected formVc: FormViewController<FamilyMemberSchema>
-    private onCancelHandler?: OnCancelHandler
-    private onSubmitHandler?: OnSubmitHandler
+    protected onCancelHandler?: OnCancelHandler
+    protected onSubmitHandler?: OnSubmitHandler
     private familyMember?: PublicFamilyMember
 
     public constructor(
@@ -101,17 +101,25 @@ export default class FamilyMemberFormCardViewController extends AbstractViewCont
 
     public async load() {
         if (this.familyMember) {
-            const client = await this.connectToApi()
-            const [{ familyMember }] = await client.emitAndFlattenResponses(
-                'eightbitstories.get-family-member::v2024_09_19',
-                {
-                    target: {
-                        familyMemberId: this.familyMember.id,
-                    },
-                }
-            )
+            try {
+                const client = await this.connectToApi()
+                const [{ familyMember }] = await client.emitAndFlattenResponses(
+                    'eightbitstories.get-family-member::v2024_09_19',
+                    {
+                        target: {
+                            familyMemberId: this.familyMember.id,
+                        },
+                    }
+                )
 
-            await this.formVc.setValues(familyMember)
+                await this.formVc.setValues(familyMember)
+            } catch (err: any) {
+                this.log.error('Failed to get family member', err)
+                await this.alert({
+                    message: err.message ?? 'Failed to get family member!',
+                })
+                await this.onCancelHandler?.()
+            }
         }
     }
 

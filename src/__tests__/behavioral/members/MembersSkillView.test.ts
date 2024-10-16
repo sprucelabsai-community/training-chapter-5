@@ -244,6 +244,48 @@ export default class MembersSkillViewTest extends AbstractEightBitTest {
         )
     }
 
+    @test()
+    protected static async onCancelOnEditMemberFormHidesDialog() {
+        const { spyFormCardVc, dialogVc } =
+            await this.seedFamilyMemberClickRowAssertRendersDialog()
+
+        await spyFormCardVc.invokeCancelHandler()
+        assert.isFalse(
+            dialogVc.getIsVisible(),
+            `You need to hide your dialog on cancel when editing a member!`
+        )
+    }
+
+    @test()
+    protected static async onSubmitOnEditMemberFormHidesDialog() {
+        const { spyFormCardVc, dialogVc } =
+            await this.seedFamilyMemberClickRowAssertRendersDialog()
+        await spyFormCardVc.invokeSubmitHandler()
+        assert.isFalse(
+            dialogVc.getIsVisible(),
+            'You need to hide your dialog on submit when editing a member!'
+        )
+    }
+
+    @test()
+    protected static async refreshesActiveRecordCardOnSubmitWhenEditing() {
+        let wasHit = false
+
+        const { spyFormCardVc } =
+            await this.seedFamilyMemberClickRowAssertRendersDialog()
+
+        this.activeCardVc.refresh = async () => {
+            wasHit = true
+        }
+
+        await spyFormCardVc.invokeSubmitHandler()
+
+        assert.isTrue(
+            wasHit,
+            'You should have tried to list members on submit!'
+        )
+    }
+
     private static async seedFamilyMemberClickRowAssertRendersDialog() {
         const member = await this.seedFamilyMemberAndLoad()
         const dialogVc = await vcAssert.assertRendersDialog(this.vc, () =>
@@ -253,7 +295,8 @@ export default class MembersSkillViewTest extends AbstractEightBitTest {
             dialogVc,
             FamilyMemberFormCardViewController
         ) as SpyFamilyMemberFormCard
-        return { spyFormCardVc, member }
+
+        return { spyFormCardVc, member, dialogVc }
     }
 
     private static async clickDeleteConfirmAndAssertAlert() {

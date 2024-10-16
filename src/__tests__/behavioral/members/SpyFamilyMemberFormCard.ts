@@ -54,4 +54,12 @@ export default class SpyFamilyMemberFormCard extends FamilyMemberFormCardViewCon
         await this.fillOutForm()
         await this.submit()
     }
+
+    public async invokeCancelHandler() {
+        await this.onCancelHandler?.()
+    }
+
+    public async invokeSubmitHandler() {
+        await this.onSubmitHandler?.()
+    }
 }

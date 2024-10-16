@@ -16,6 +16,7 @@ export default class FamilyMemberFormCardTest extends AbstractEightBitTest {
     private static readonly defailtAddingTitle = 'Add Family Member!'
     private static wasOnSubmitHandlerInvoked: boolean
     private static fakedFamilyMember?: PublicFamilyMember
+    private static wasCancelHandlerInvoked: boolean
 
     protected static async beforeEach() {
         await super.beforeEach()
@@ -23,6 +24,7 @@ export default class FamilyMemberFormCardTest extends AbstractEightBitTest {
         delete this.fakedFamilyMember
 
         this.wasOnSubmitHandlerInvoked = false
+        this.wasCancelHandlerInvoked = false
 
         await this.eventFaker.fakeGetFamilyMember(() => {
             return this.fakedFamilyMember
@@ -124,8 +126,47 @@ export default class FamilyMemberFormCardTest extends AbstractEightBitTest {
     }
 
     @test()
+    protected static async doesNotInvokeCancelHandlerIfLoadedSuccessfully() {
+        await this.reloadWithFamilyMember()
+        this.assertDidNotInvokeOnCancelHandler()
+    }
+
+    @test()
     protected static async doesNotCrashIfLoadingWithoutFakedPerson() {
         await this.load()
+    }
+
+    @test()
+    protected static async callsOnCancelWhenGettingFamilyMemberFails() {
+        await this.makeGetFamilyMemberThrow()
+        this.setupWithFamilyMember()
+        const alertVc = await this.loadAndAssertRendersAlert()
+
+        this.assertDidNotInvokeOnCancelHandler()
+
+        await alertVc.hide()
+
+        assert.isTrue(
+            this.wasCancelHandlerInvoked,
+            'You did not invoke the cancel handler!'
+        )
+    }
+
+    private static assertDidNotInvokeOnCancelHandler() {
+        assert.isFalse(
+            this.wasCancelHandlerInvoked,
+            'You triggered on cancel to soon!'
+        )
+    }
+
+    private static async loadAndAssertRendersAlert() {
+        return await vcAssert.assertRendersAlert(this.vc, () => this.load())
+    }
+
+    private static async makeGetFamilyMemberThrow() {
+        await eventFaker.makeEventThrow(
+            'eightbitstories.get-family-member::v2024_09_19'
+        )
     }
 
     private static async reloadWithFamilyMember() {
@@ -190,6 +231,9 @@ export default class FamilyMemberFormCardTest extends AbstractEightBitTest {
                 familyMember: this.fakedFamilyMember,
                 onSubmit: () => {
                     this.wasOnSubmitHandlerInvoked = true
+                },
+                onCancel: () => {
+                    this.wasCancelHandlerInvoked = true
                 },
             }
         ) as SpyFamilyMemberFormCard

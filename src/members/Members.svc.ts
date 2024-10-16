@@ -93,8 +93,13 @@ export default class MembersSkillViewController extends AbstractSkillViewControl
     private async handleClickRow(familyMember: PublicFamilyMember) {
         const vc = this.Controller('eightbitstories.family-member-form-card', {
             familyMember,
+            onCancel: () => dlgVc.hide(),
+            onSubmit: async () => {
+                await dlgVc.hide()
+                await this.activeCardVc.refresh()
+            },
         })
-        this.renderInDialog(vc.render())
+        const dlgVc = this.renderInDialog(vc.render())
         await vc.load()
     }
 
