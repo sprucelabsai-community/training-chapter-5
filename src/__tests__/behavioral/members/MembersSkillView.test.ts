@@ -54,7 +54,7 @@ export default class MembersSkillViewTest extends AbstractEightBitTest {
     }
 
     @test()
-    protected static rendersMembersList() {
+    protected static async rendersMembersList() {
         listAssert.cardRendersList(this.activeCardVc)
     }
 
@@ -288,7 +288,7 @@ export default class MembersSkillViewTest extends AbstractEightBitTest {
 
     @test()
     protected static async membersListHasExpectedPaging() {
-        activeRecordCardAssert.assertPagingOptionsEqual(this.activeCardVc, {
+        activeRecordCardAssert.pagingOptionsEqual(this.activeCardVc, {
             pageSize: 5,
             shouldPageClientSide: true,
         })
