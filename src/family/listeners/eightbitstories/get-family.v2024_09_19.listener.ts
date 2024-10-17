@@ -13,7 +13,6 @@ export default async (
 
     const families = await stores.getStore('families')
     const match = await families.findOne({
-        //@ts-ignore
         'source.personId': personId,
     })
 
