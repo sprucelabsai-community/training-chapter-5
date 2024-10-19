@@ -41,7 +41,7 @@
     "@sprucelabs/data-stores": "^28.3.154",
     "@sprucelabs/error": "^6.0.491",
     "@sprucelabs/globby": "^2.0.452",
-    "@sprucelabs/heartwood-view-controllers": "^110.12.176",
+    "@sprucelabs/heartwood-view-controllers": "^110.12.177",
     "@sprucelabs/mercury-client": "^42.0.540",
     "@sprucelabs/mercury-core-events": "^24.3.302",
     "@sprucelabs/mercury-types": "^47.0.542",
@@ -53,7 +53,7 @@
     "@sprucelabs/spruce-skill-booter": "^62.3.57",
     "@sprucelabs/spruce-skill-utils": "^31.0.560",
     "@sprucelabs/spruce-store-plugin": "^62.3.57",
-    "@sprucelabs/spruce-view-plugin": "^47.0.628",
+    "@sprucelabs/spruce-view-plugin": "^47.0.629",
     "dotenv": "^16.4.5"
   },
   "devDependencies": {

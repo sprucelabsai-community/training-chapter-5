@@ -2,13 +2,6 @@ import { EventFeatureListener } from '@sprucelabs/spruce-event-utils'
 
 const listeners: EventFeatureListener[] = [
     {
-        eventName: 'did-boot',
-        eventNamespace: 'skill',
-        version: 'v2024_09_19',
-        callback: require('../../listeners/skill/did-boot.v2024_09_19.listener').default,
-        isGlobal: require('../../listeners/skill/did-boot.v2024_09_19.listener').isGlobal,
-    },
-    {
         eventName: 'create-family-member',
         eventNamespace: 'eightbitstories',
         version: 'v2024_09_19',
@@ -30,11 +23,11 @@ const listeners: EventFeatureListener[] = [
         isGlobal: require('../../listeners/eightbitstories/get-family-member.v2024_09_19.listener').isGlobal,
     },
     {
-        eventName: 'list-family-members',
-        eventNamespace: 'eightbitstories',
+        eventName: 'did-boot',
+        eventNamespace: 'skill',
         version: 'v2024_09_19',
-        callback: require('../../members/listeners/eightbitstories/list-family-members.v2024_09_19.listener').default,
-        isGlobal: require('../../members/listeners/eightbitstories/list-family-members.v2024_09_19.listener').isGlobal,
+        callback: require('../../listeners/skill/did-boot.v2024_09_19.listener').default,
+        isGlobal: require('../../listeners/skill/did-boot.v2024_09_19.listener').isGlobal,
     },
     {
         eventName: 'get-family',
@@ -56,6 +49,13 @@ const listeners: EventFeatureListener[] = [
         version: 'v2024_09_19',
         callback: require('../../family/listeners/eightbitstories/submit-feedback.v2024_09_19.listener').default,
         isGlobal: require('../../family/listeners/eightbitstories/submit-feedback.v2024_09_19.listener').isGlobal,
+    },
+    {
+        eventName: 'list-family-members',
+        eventNamespace: 'eightbitstories',
+        version: 'v2024_09_19',
+        callback: require('../../members/listeners/eightbitstories/list-family-members.v2024_09_19.listener').default,
+        isGlobal: require('../../members/listeners/eightbitstories/list-family-members.v2024_09_19.listener').isGlobal,
     },
 ]
 
