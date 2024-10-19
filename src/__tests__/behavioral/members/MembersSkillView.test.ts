@@ -287,7 +287,7 @@ export default class MembersSkillViewTest extends AbstractEightBitTest {
     }
 
     @test()
-    protected static async membersListHasExpectedPaging() {
+    protected static async activeRecordPagesAsExpected() {
         activeRecordCardAssert.pagingOptionsEqual(this.activeCardVc, {
             pageSize: 5,
             shouldPageClientSide: true,

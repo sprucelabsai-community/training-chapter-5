@@ -16,14 +16,13 @@ export default async (
     const families = await stores.getStore('families')
     const created = await families.upsertOne(
         {
-            //@ts-ignore
             'source.personId': personId,
         },
         {
             name,
             values,
             source: {
-                personId,
+                personId: personId!,
             },
         }
     )

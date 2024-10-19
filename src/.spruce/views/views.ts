@@ -1,5 +1,5 @@
-import MembersSkillViewController from '../../members/Members.svc'
 import FamilySkillViewController from '../../family/Family.svc'
+import MembersSkillViewController from '../../members/Members.svc'
 import RootSkillViewController from '../../skillViewControllers/Root.svc'
 import FeedbackCardViewController from '../../feedback/FeedbackCard.vc'
 import FamilyMemberFormCardViewController from '../../viewControllers/FamilyMemberFormCard.vc'
@@ -7,8 +7,8 @@ import FamilyMemberFormCardViewController from '../../viewControllers/FamilyMemb
 import '@sprucelabs/heartwood-view-controllers'
 
 const vcs = {
-    MembersSkillViewController,
     FamilySkillViewController,
+    MembersSkillViewController,
     RootSkillViewController,
     FeedbackCardViewController,
     FamilyMemberFormCardViewController,
@@ -21,22 +21,22 @@ type LoadOptions<Args extends Record<string,any>[]> = Args[0]['args'] extends Re
 
 declare module '@sprucelabs/heartwood-view-controllers/build/types/heartwood.types' {
 	interface SkillViewControllerMap {
-		'eightbitstories.members': MembersSkillViewController
 		'eightbitstories.family': FamilySkillViewController
+		'eightbitstories.members': MembersSkillViewController
 		'eightbitstories.root': RootSkillViewController
 	}
 
 	interface SkillViewControllerArgsMap {
-		'eightbitstories.members': LoadOptions<Parameters<MembersSkillViewController['load']>>
 		'eightbitstories.family': LoadOptions<Parameters<FamilySkillViewController['load']>>
+		'eightbitstories.members': LoadOptions<Parameters<MembersSkillViewController['load']>>
 		'eightbitstories.root': LoadOptions<Parameters<RootSkillViewController['load']>>
 	}
 
 	interface ViewControllerMap {
 		'eightbitstories.feedback-card': FeedbackCardViewController
 		'eightbitstories.family-member-form-card': FamilyMemberFormCardViewController
-		'eightbitstories.members': MembersSkillViewController
 		'eightbitstories.family': FamilySkillViewController
+		'eightbitstories.members': MembersSkillViewController
 		'eightbitstories.root': RootSkillViewController
 	}
 

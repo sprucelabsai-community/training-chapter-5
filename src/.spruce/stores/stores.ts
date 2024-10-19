@@ -1,7 +1,7 @@
-import FamilyMembersStore from '../../members/FamilyMembers.store'
 import FamiliesStore from '../../family/Families.store'
+import FamilyMembersStore from '../../members/FamilyMembers.store'
 
 export default {
-            familyMembers: FamilyMembersStore,
             families: FamiliesStore,
+            familyMembers: FamilyMembersStore,
 }
