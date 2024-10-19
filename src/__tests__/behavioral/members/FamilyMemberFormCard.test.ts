@@ -6,6 +6,7 @@ import AbstractEightBitTest from '../../support/AbstractEightBitTest'
 import {
     CreateFamilyMemberTargetAndPayload,
     GetFamilyMemberTargetAndPayload,
+    UpdateFamilyMemberTargetAndPayload,
 } from '../../support/EventFaker'
 import SpyFamilyMemberFormCard from './SpyFamilyMemberFormCard'
 
@@ -161,6 +162,45 @@ export default class FamilyMemberFormCardTest extends AbstractEightBitTest {
         formAssert.formIsBusy(this.formVc)
         await alertVc.hide()
         this.assertFormNotBusy()
+    }
+
+    @test()
+    protected static async emitsUpdateMemberWithExistingMember() {
+        let passedTarget:
+            | UpdateFamilyMemberTargetAndPayload['target']
+            | undefined
+
+        let passedPayload:
+            | UpdateFamilyMemberTargetAndPayload['payload']
+            | undefined
+
+        await this.eventFaker.fakeUpdateFamilyMember(({ target, payload }) => {
+            passedTarget = target
+            passedPayload = payload
+        })
+
+        await this.reloadWithFamilyMember()
+        const values = await this.fillOutForm()
+        await this.submit()
+
+        assert.isEqualDeep(passedTarget, {
+            familyMemberId: this.fakedFamilyMember?.id,
+        })
+
+        assert.isEqualDeep(passedPayload, {
+            familyMember: values,
+        })
+    }
+
+    @test()
+    protected static async onSubmitInvokedOnUpdate() {
+        await this.eventFaker.fakeUpdateFamilyMember()
+        await this.reloadWithFamilyMember()
+        await this.submit()
+        assert.isTrue(
+            this.wasOnSubmitHandlerInvoked,
+            `Updating did not invoke the onSubmit handler.`
+        )
     }
 
     private static assertFormNotBusy() {

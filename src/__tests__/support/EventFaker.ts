@@ -7,6 +7,20 @@ import { generateId } from '@sprucelabs/test-utils'
 import { Family, PublicFamilyMember } from '../../eightbitstories.types'
 
 export default class EventFaker {
+    public async fakeUpdateFamilyMember(
+        cb?: (targetAndPayload: UpdateFamilyMemberTargetAndPayload) => void
+    ) {
+        await eventFaker.on(
+            'eightbitstories.update-family-member::v2024_09_19',
+            (targetAndPayload) => {
+                cb?.(targetAndPayload)
+                return {
+                    familyMember: this.generatePublicFamilyMemberValues(),
+                }
+            }
+        )
+    }
+
     public async fakeGetFamilyMember(
         cb?: (
             targetAndPayload: GetFamilyMemberTargetAndPayload
@@ -165,3 +179,6 @@ export type DeleteFamilyMemberTargetAndPayload =
 
 export type GetFamilyMemberTargetAndPayload =
     SpruceSchemas.Eightbitstories.v2024_09_19.GetFamilyMemberEmitTargetAndPayload
+
+export type UpdateFamilyMemberTargetAndPayload =
+    SpruceSchemas.Eightbitstories.v2024_09_19.UpdateFamilyMemberEmitTargetAndPayload

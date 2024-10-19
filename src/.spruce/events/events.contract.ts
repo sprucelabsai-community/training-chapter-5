@@ -14,6 +14,7 @@ import heartwoodRegisterDashboardCardsEventContract_v2021_02_11, { RegisterDashb
 import heartwoodRegisterSkillViewsEventContract_v2021_02_11, { RegisterSkillViewsEventContract as HeartwoodRegisterSkillViewsEventContract_v2021_02_11  } from '#spruce/events/heartwood/registerSkillViews.v2021_02_11.contract'
 import eightbitstoriesSaveFamilyEventContract_v2024_09_19, { SaveFamilyEventContract as EightbitstoriesSaveFamilyEventContract_v2024_09_19  } from '#spruce/events/eightbitstories/saveFamily.v2024_09_19.contract'
 import eightbitstoriesSubmitFeedbackEventContract_v2024_09_19, { SubmitFeedbackEventContract as EightbitstoriesSubmitFeedbackEventContract_v2024_09_19  } from '#spruce/events/eightbitstories/submitFeedback.v2024_09_19.contract'
+import eightbitstoriesUpdateFamilyMemberEventContract_v2024_09_19, { UpdateFamilyMemberEventContract as EightbitstoriesUpdateFamilyMemberEventContract_v2024_09_19  } from '#spruce/events/eightbitstories/updateFamilyMember.v2024_09_19.contract'
 import heartwoodUpsertThemeEventContract_v2021_02_11, { UpsertThemeEventContract as HeartwoodUpsertThemeEventContract_v2021_02_11  } from '#spruce/events/heartwood/upsertTheme.v2021_02_11.contract'
 
 export default [
@@ -31,6 +32,7 @@ export default [
     heartwoodRegisterSkillViewsEventContract_v2021_02_11,
     eightbitstoriesSaveFamilyEventContract_v2024_09_19,
     eightbitstoriesSubmitFeedbackEventContract_v2024_09_19,
+    eightbitstoriesUpdateFamilyMemberEventContract_v2024_09_19,
     heartwoodUpsertThemeEventContract_v2021_02_11,
     ...coreEventContracts,
 ]
@@ -78,6 +80,9 @@ declare module '@sprucelabs/mercury-types/build/types/mercury.types' {
     
     
     'eightbitstories.submit-feedback::v2024_09_19': EightbitstoriesSubmitFeedbackEventContract_v2024_09_19['eventSignatures']['eightbitstories.submit-feedback::v2024_09_19'],
+    
+    
+    'eightbitstories.update-family-member::v2024_09_19': EightbitstoriesUpdateFamilyMemberEventContract_v2024_09_19['eventSignatures']['eightbitstories.update-family-member::v2024_09_19'],
     
     
     'heartwood.upsert-theme::v2021_02_11': HeartwoodUpsertThemeEventContract_v2021_02_11['eventSignatures']['heartwood.upsert-theme::v2021_02_11'],

@@ -72,16 +72,28 @@ export default class FamilyMemberFormCardViewController extends AbstractViewCont
     private async handleSubmit() {
         this.formVc.setIsBusy(true)
         try {
-            const values = this.formVc.getValues()
             const client = await this.connectToApi()
-            await client.emitAndFlattenResponses(
-                'eightbitstories.create-family-member::v2024_09_19',
-                {
-                    payload: {
-                        familyMember: values as PublicFamilyMember,
-                    },
-                }
-            )
+            const values = this.formVc.getValues()
+            if (this.familyMember) {
+                await client.emitAndFlattenResponses(
+                    'eightbitstories.update-family-member::v2024_09_19',
+                    {
+                        target: { familyMemberId: this.familyMember.id },
+                        payload: {
+                            familyMember: values,
+                        },
+                    }
+                )
+            } else {
+                await client.emitAndFlattenResponses(
+                    'eightbitstories.create-family-member::v2024_09_19',
+                    {
+                        payload: {
+                            familyMember: values as PublicFamilyMember,
+                        },
+                    }
+                )
+            }
             await this.onSubmitHandler?.()
         } catch (err: any) {
             this.log.error(`failed to create family member`, err)
