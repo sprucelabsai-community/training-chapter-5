@@ -70,6 +70,7 @@ export default class FamilyMemberFormCardViewController extends AbstractViewCont
     }
 
     private async handleSubmit() {
+        this.formVc.setIsBusy(true)
         try {
             const values = this.formVc.getValues()
             const client = await this.connectToApi()
@@ -88,6 +89,8 @@ export default class FamilyMemberFormCardViewController extends AbstractViewCont
                 message: err.message ?? 'Adding your family member failed!',
             })
         }
+
+        this.formVc.setIsBusy(false)
     }
 
     private async handleChangeForm() {
@@ -100,6 +103,7 @@ export default class FamilyMemberFormCardViewController extends AbstractViewCont
     }
 
     public async load() {
+        this.cardVc.setIsBusy(true)
         if (this.familyMember) {
             try {
                 const client = await this.connectToApi()
@@ -121,6 +125,7 @@ export default class FamilyMemberFormCardViewController extends AbstractViewCont
                 await this.onCancelHandler?.()
             }
         }
+        this.cardVc.setIsBusy(false)
     }
 
     public render() {

@@ -152,6 +152,21 @@ export default class FamilyMemberFormCardTest extends AbstractEightBitTest {
         )
     }
 
+    @test()
+    protected static async submittingSetsFormToBusy() {
+        await this.makeCreateEventThrow()
+        await this.fillOutForm()
+        this.assertFormNotBusy()
+        const alertVc = await this.submitAndAssertRendersAlert()
+        formAssert.formIsBusy(this.formVc)
+        await alertVc.hide()
+        this.assertFormNotBusy()
+    }
+
+    private static assertFormNotBusy() {
+        formAssert.formIsNotBusy(this.formVc)
+    }
+
     private static assertDidNotInvokeOnCancelHandler() {
         assert.isFalse(
             this.wasCancelHandlerInvoked,
@@ -185,7 +200,11 @@ export default class FamilyMemberFormCardTest extends AbstractEightBitTest {
 
     private static async fillOutFormSubmitAndAssertRendersAlert() {
         await this.fillOutForm()
-        await vcAssert.assertRendersAlert(this.vc, () => this.submit())
+        await this.submitAndAssertRendersAlert()
+    }
+
+    private static async submitAndAssertRendersAlert() {
+        return await vcAssert.assertRendersAlert(this.vc, () => this.submit())
     }
 
     private static async makeCreateEventThrow() {
