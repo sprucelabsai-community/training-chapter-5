@@ -11,6 +11,10 @@ import {
     FamilyMemberSchema,
     PublicFamilyMember,
 } from '../eightbitstories.types'
+import SaveMemberStrategies, {
+    MemberSaveStrategy,
+    MemberStrategyOptions,
+} from './FamilySaveStrategies'
 
 export default class FamilyMemberFormCardViewController extends AbstractViewController<Card> {
     public static id = 'family-member-form-card'
@@ -21,6 +25,7 @@ export default class FamilyMemberFormCardViewController extends AbstractViewCont
     protected onCancelHandler?: OnCancelHandler
     protected onSubmitHandler?: OnSubmitHandler
     private familyMember?: PublicFamilyMember
+    private familyStrategy: MemberSaveStrategy
 
     public constructor(
         options: ViewControllerOptions & FamilyMemberFormCardOptions
@@ -35,6 +40,15 @@ export default class FamilyMemberFormCardViewController extends AbstractViewCont
 
         this.formVc = this.FormVc()
         this.cardVc = this.CardVc()
+
+        const strategyOptions: MemberStrategyOptions = {
+            connectToApi: this.connectToApi,
+            formVc: this.formVc,
+        }
+
+        this.familyStrategy = new SaveMemberStrategies[
+            familyMember ? 'update' : 'create'
+        ](strategyOptions)
     }
 
     private CardVc(): CardViewController {
@@ -72,28 +86,7 @@ export default class FamilyMemberFormCardViewController extends AbstractViewCont
     private async handleSubmit() {
         this.formVc.setIsBusy(true)
         try {
-            const client = await this.connectToApi()
-            const values = this.formVc.getValues()
-            if (this.familyMember) {
-                await client.emitAndFlattenResponses(
-                    'eightbitstories.update-family-member::v2024_09_19',
-                    {
-                        target: { familyMemberId: this.familyMember.id },
-                        payload: {
-                            familyMember: values,
-                        },
-                    }
-                )
-            } else {
-                await client.emitAndFlattenResponses(
-                    'eightbitstories.create-family-member::v2024_09_19',
-                    {
-                        payload: {
-                            familyMember: values as PublicFamilyMember,
-                        },
-                    }
-                )
-            }
+            await this.familyStrategy.save()
             await this.onSubmitHandler?.()
         } catch (err: any) {
             this.log.error(`failed to create family member`, err)
@@ -116,26 +109,14 @@ export default class FamilyMemberFormCardViewController extends AbstractViewCont
 
     public async load() {
         this.cardVc.setIsBusy(true)
-        if (this.familyMember) {
-            try {
-                const client = await this.connectToApi()
-                const [{ familyMember }] = await client.emitAndFlattenResponses(
-                    'eightbitstories.get-family-member::v2024_09_19',
-                    {
-                        target: {
-                            familyMemberId: this.familyMember.id,
-                        },
-                    }
-                )
-
-                await this.formVc.setValues(familyMember)
-            } catch (err: any) {
-                this.log.error('Failed to get family member', err)
-                await this.alert({
-                    message: err.message ?? 'Failed to get family member!',
-                })
-                await this.onCancelHandler?.()
-            }
+        try {
+            await this.familyStrategy.load(this.familyMember?.id)
+        } catch (err: any) {
+            this.log.error('Failed to get family member', err)
+            await this.alert({
+                message: err.message ?? 'Failed to get family member!',
+            })
+            await this.onCancelHandler?.()
         }
         this.cardVc.setIsBusy(false)
     }

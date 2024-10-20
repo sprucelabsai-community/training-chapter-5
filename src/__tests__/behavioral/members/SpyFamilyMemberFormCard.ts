@@ -6,7 +6,7 @@ import { generateId } from '@sprucelabs/test-utils'
 import { PublicFamilyMember } from '../../../eightbitstories.types'
 import FamilyMemberFormCardViewController, {
     FamilyMemberFormCardOptions,
-} from '../../../viewControllers/FamilyMemberFormCard.vc'
+} from '../../../members/FamilyMemberFormCard.vc'
 
 export default class SpyFamilyMemberFormCard extends FamilyMemberFormCardViewController {
     private memberFromConstructor?: PublicFamilyMember
